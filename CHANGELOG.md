@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added Units in Analyse view
-- Added upload Logo in Settings
+- Units in Analyse view
+- Upload Logo in Settings
 
 ### Changed
+
+- Multiple Layouts in AdminView
+- Structure in AdminView
 
 ### Fixed
 
