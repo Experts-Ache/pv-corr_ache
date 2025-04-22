@@ -3,6 +3,7 @@ import { Language, LANGUAGES, useTranslation, setTranslations } from "../../../.
 import { fetchTranslations } from "../../../../services/translations";
 import { updateUserSettings } from "../../../../services/userSettings";
 import { showToast } from "../../../../lib/toast";
+import LogoUpload from "./LogoUpload";
 import { Button } from "@/components/ui/button";
 
 interface GeneralSettingsProps {
@@ -14,6 +15,8 @@ interface GeneralSettingsProps {
   onShowHiddenIdsChange: (show: boolean) => void;
   currentTheme: any;
   onThemeChange: (theme: string) => void;
+  logoUrl?: string | null;
+  onLogoChange: (logoUrl: string | null) => void;
 }
 
 const GeneralSettings: React.FC<GeneralSettingsProps> = ({
@@ -25,6 +28,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   onShowHiddenIdsChange,
   currentTheme,
   onThemeChange,
+  logoUrl,
+  onLogoChange,
 }) => {
   const t = useTranslation(currentLanguage);
   const [updating, setUpdating] = useState(false);
@@ -160,6 +165,17 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <option value="green">Green Light</option>
           <option value="green.dark">Green Dark</option>
         </select>
+      </div>
+      
+      <div className="p-3 flex flex-col gap-4 rounded">
+        <div>
+          <span className="text-3xl font-semibold leading-none">{t("settings.company_logo") || "Company Logo"}</span>
+          <span className="block text-muted-foreground">{t("settings.company_logo.description") || "Upload your company logo"}</span>
+        </div>
+        <LogoUpload 
+          currentLogo={logoUrl} 
+          onLogoChange={onLogoChange} 
+        />
       </div>
     </div>
   );
