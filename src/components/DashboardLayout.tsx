@@ -650,8 +650,8 @@ const DashboardLayout = () => {
                     showToast(t("output.view.disabled"), "info");
                   }}
                 >
-                  <FileText size={18} className="opacity-50" />
-                  <span className="opacity-50">{t("nav.output")}</span>
+                  <FileText size={18} />
+                  <span>{t("nav.output")}</span>
                 </ButtonSection>
                 <ButtonSection
                   view={view}
@@ -660,8 +660,8 @@ const DashboardLayout = () => {
                     showToast(t("reports.view.disabled"), "info");
                   }}
                 >
-                  <ClipboardList size={18} className="opacity-50" />
-                  <span className="opacity-50">{t("reports.title")}</span>
+                  <ClipboardList size={18} />
+                  <span>{t("reports.title")}</span>
                 </ButtonSection>
               </>
             )}

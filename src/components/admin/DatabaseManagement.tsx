@@ -21,14 +21,24 @@ interface DatabaseManagementProps {
 
 const DatabaseManagement: React.FC<DatabaseManagementProps> = ({ currentTheme, onBack, currentLanguage }) => {
   const [activeView, setActiveView] = useState<
-    "overview" | "parameters" | "substructures" | "norms" | "constants" | "materials" | "foundations" | "neighboring" | "experts" | "norms" | "translations"
+    | "overview"
+    | "parameters"
+    | "substructures"
+    | "norms"
+    | "constants"
+    | "materials"
+    | "foundations"
+    | "neighboring"
+    | "experts"
+    | "norms"
+    | "translations"
   >("overview");
   const [standards, setStandards] = useState([]);
 
   return (
     <div className="p-8 text-card-foreground">
       <h2 className="text-2xl font-bold mb-8">Database Management</h2>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <button onClick={() => setActiveView("parameters")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
           <div className="flex items-center gap-4 mb-4">

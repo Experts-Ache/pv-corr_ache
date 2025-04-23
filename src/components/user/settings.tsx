@@ -64,17 +64,19 @@ const Settings: React.FC<SettingsProps> = ({
   onCreateCustomer,
 }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  
+
   // Ensure translations are loaded when the settings component mounts
   React.useEffect(() => {
     loadLanguageTranslations(currentLanguage);
   }, [currentLanguage]);
-  
+
   // Load user settings including logo URL
   React.useEffect(() => {
     const loadUserSettings = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
         if (user?.user_metadata?.logo_url) {
           setLogoUrl(user.user_metadata.logo_url);
         }
@@ -82,10 +84,10 @@ const Settings: React.FC<SettingsProps> = ({
         console.error("Error loading user settings:", err);
       }
     };
-    
+
     loadUserSettings();
   }, []);
-  
+
   const handleLogoChange = (newLogoUrl: string | null) => {
     setLogoUrl(newLogoUrl);
   };

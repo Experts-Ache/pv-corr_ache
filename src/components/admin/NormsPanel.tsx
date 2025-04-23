@@ -78,7 +78,7 @@ const OutputConfigDialog: React.FC<OutputConfigDialogProps> = ({ isOpen, onClose
                     <X size={14} />
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center gap-2">
                   <Tag size={14} className="text-muted-foreground" />
                   <Input

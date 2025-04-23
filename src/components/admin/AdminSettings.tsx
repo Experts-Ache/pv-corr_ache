@@ -73,9 +73,7 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentTheme, currentLang
               <div className="text-center">
                 <SettingsIcon className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
                 <h3 className="text-xl font-medium mb-2">System Configuration</h3>
-                <p className="text-muted-foreground">
-                  Select a category from the options above to manage system settings.
-                </p>
+                <p className="text-muted-foreground">Select a category from the options above to manage system settings.</p>
               </div>
             </div>
           </div>

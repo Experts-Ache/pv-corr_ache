@@ -13,9 +13,7 @@ const DatabaseOverview: React.FC<DatabaseOverviewProps> = ({ currentTheme }) => 
         <div className="text-center">
           <Database className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
           <h3 className="text-xl font-medium mb-2">Database Management</h3>
-          <p className="text-muted-foreground">
-            Select a category from the options above to manage database records.
-          </p>
+          <p className="text-muted-foreground">Select a category from the options above to manage database records.</p>
         </div>
       </div>
     </div>

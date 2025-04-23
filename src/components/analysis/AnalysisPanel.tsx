@@ -304,7 +304,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
                 }
 
                 const calculateOutput = new Function("values", "ratings", formula);
-                console.log(`Output ${output.id} = ${outputs[output.id]}${output.unit ? ` ${output.unit}` : ''}`);
+                console.log(`Output ${output.id} = ${outputs[output.id]}${output.unit ? ` ${output.unit}` : ""}`);
               } catch (err) {
                 console.error(`Error calculating output for datapoint:`, err);
                 return 0;

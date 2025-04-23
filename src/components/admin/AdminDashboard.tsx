@@ -31,14 +31,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
         setVersionType(version.type || "stable");
       }
     };
-    
+
     const loadUser = async () => {
       const { data } = await supabase.auth.getUser();
       if (data.user) {
         setUser(data.user);
       }
     };
-    
+
     loadVersion();
     loadUser();
   }, []);
@@ -69,18 +69,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
         </div>
         <div className="flex items-center gap-4">
           {onSwitchToUserView && (
-            <Button
-              onClick={onSwitchToUserView}
-              className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors"
-            >
+            <Button onClick={onSwitchToUserView} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
               <LayoutDashboard size={16} />
               Switch to User View
             </Button>
           )}
-          <Button 
-            onClick={handleSignOut}
-            className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors"
-          >
+          <Button onClick={handleSignOut} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
             <LogOut size={16} />
             Sign Out
           </Button>
@@ -89,9 +83,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
 
       {/* Admin Dashboard Title Bar */}
       <div className="h-10 border-b border-input bg-card/50 flex items-center justify-between px-4">
-        <div className="text-sm text-muted-foreground">
-          Admin Dashboard
-        </div>
+        <div className="text-sm text-muted-foreground">Admin Dashboard</div>
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           {user && (
             <div className="flex items-center gap-2">
