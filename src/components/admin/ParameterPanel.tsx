@@ -110,19 +110,20 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
   const translation = useTranslation(currentLanguage);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const fetchedParameters = await fetchParameters();
-        setParameters(fetchedParameters);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     load();
   }, []);
+
+  const load = async () => {
+    try {
+      setLoading(true);
+      const fetchedParameters = await fetchParameters();
+      setParameters(fetchedParameters);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChangeEditingValues = (name: string, value: string) => {
     setEditingValues((previous) => ({
@@ -152,6 +153,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
         };
         await updateParameter(parameter.id, updateData);
         const updatedParameters = await fetchParameters();
+        console.log("Updated parameters:", updatedParameters);
         setParameters(updatedParameters);
       } catch (err) {
         console.error("Error updating parameter:", err);
@@ -271,20 +273,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                 <TableBody>
                   {parameters.map((parameter) => (
                     <TableRow key={parameter.id}>
-                      <TableCell className="p-2 align-middle">
-                        {editingParameter === parameter.id ? (
-                          <FormInput
-                            type="number"
-                            name="orderNumber"
-                            value={editingValues.orderNumber || "0"}
-                            onChange={(e) => handleChangeEditingValues("orderNumber", e.target.value)}
-                            min="0"
-                            step="0.01"
-                          />
-                        ) : (
-                          parameter.orderNumber
-                        )}
-                      </TableCell>
+                      <TableCell className="p-2 align-middle">{parameter.short_id}</TableCell>
 
                       <TableCell className="p-2 align-middle">
                         {editingParameter === parameter.id ? (
@@ -422,7 +411,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                   ))}
                   {isNewParameter && (
                     <TableRow>
-                      <TableCell className="p-2 align-middle">
+                      <TableCell className="p-2 align-middle"></TableCell>
+
+                      {/*<TableCell className="p-2 align-middle">
                         <FormInput
                           type="number"
                           name="orderNumber"
@@ -432,7 +423,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                           min="0"
                           step="0.01"
                         />
-                      </TableCell>
+                      </TableCell>*/}
                       <TableCell className="p-2 border border-theme align-middle">
                         <FormHandler isEditing={true} onSave={handleAddNewParameter}>
                           {isNewParameter ? (
