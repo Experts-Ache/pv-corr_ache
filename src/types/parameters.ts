@@ -33,4 +33,5 @@ export interface Parameter {
   rating_logic_test_cases?: any;
   created_at?: string;
   updated_at?: string;
+  short_id?: string;
 }
