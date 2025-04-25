@@ -186,8 +186,13 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
       if (paramsData.error) throw paramsData.error;
       if (normParamsData.error) throw normParamsData.error;
 
+      const formattedParams = (paramsData.data || []).map((param) => ({
+        ...param,
+        shortName: param.short_name,
+      }));
+
       setNorms(normsData.data || []);
-      setParameters(paramsData.data || []);
+      setParameters(formattedParams || []);
       setNormParameters(normParamsData.data || []);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -491,6 +496,8 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
                                   <tr>
                                     <th className="text-left p-2 text-sm font-normal text-muted-foreground">Name</th>
                                     <th className="text-left p-2 text-sm font-normal text-muted-foreground">Parameter Code</th>
+                                    <th className="text-left p-2 text-sm font-normal text-muted-foreground">Short Name</th>
+                                    <th className="text-left p-2 text-sm font-normal text-muted-foreground">Short id</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -527,6 +534,8 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
                                             </Button>
                                           </div>
                                         </td>
+                                        <td className="p-2 text-sm">{param.shortName}</td>
+                                        <td className="p-2 text-sm">{param.short_id}</td>
                                       </tr>
                                     ))}
                                 </tbody>

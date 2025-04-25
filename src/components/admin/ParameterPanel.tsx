@@ -261,6 +261,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                 <TableHeader>
                   <TableRow>
                     <TableHead>#</TableHead>
+                    <TableHead>Uuid</TableHead>
                     <TableHead>Parameter Name</TableHead>
                     <TableHead>Short Name</TableHead>
                     <TableHead>Unit</TableHead>
@@ -274,6 +275,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                   {parameters.map((parameter) => (
                     <TableRow key={parameter.id}>
                       <TableCell className="p-2 align-middle">{parameter.short_id}</TableCell>
+                      <TableCell className="p-2 align-middle">{parameter.id}</TableCell>
 
                       <TableCell className="p-2 align-middle">
                         {editingParameter === parameter.id ? (
@@ -411,6 +413,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                   ))}
                   {isNewParameter && (
                     <TableRow>
+                      <TableCell className="p-2 align-middle"></TableCell>
                       <TableCell className="p-2 align-middle"></TableCell>
 
                       {/*<TableCell className="p-2 align-middle">
