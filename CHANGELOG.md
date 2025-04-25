@@ -7,7 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Latest
 
-<details>
 <summary><strong>Version 0.14.0</strong> - 2025-04-25</summary>
 
 #### Added
@@ -21,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Fixed
 - Overall Stability
 - Input
-</details>
 
 ## Older
 
