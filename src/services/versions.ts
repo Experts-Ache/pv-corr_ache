@@ -118,7 +118,7 @@ export const createVersion = async (versionData: { version: string; major: numbe
 
 export const updateVersion = async (id: string, updateData: Partial<Version>) => {
   // First check if the version exists
-  const { data: existingVersion, error: checkError } = await supabase.from("versions").select("*").eq("id", id).maybeSingle();
+  const { data: existingVersion, error: checkError } = await supabase.from("versions").select("*").eq("id", id).single();
 
   if (checkError) {
     throw new Error(`Version not found: ${checkError.message}`);
@@ -130,18 +130,30 @@ export const updateVersion = async (id: string, updateData: Partial<Version>) =>
 
   // If setting as current version, first set all versions to not current
   if (updateData.is_current) {
-    const { error: resetError } = await supabase
-      .from("versions")
-      .update({ is_current: false })
-      .neq("id", "00000000-0000-0000-0000-000000000000"); // Dummy WHERE clause to match all rows
+    try {
+      // Use the RPC function to set the version as current
+      const { error } = await supabase.rpc("set_version_as_current", { version_id: id });
 
-    if (resetError) {
-      throw new Error(`Failed to reset current versions: ${resetError.message}`);
+      if (error) {
+        throw new Error(`Failed to set version as current: ${error.message}`);
+      }
+
+      // Return the updated version
+      const { data: updatedVersion, error: fetchError } = await supabase.from("versions").select("*").eq("id", id).single();
+
+      if (fetchError) {
+        throw new Error(`Failed to fetch updated version: ${fetchError.message}`);
+      }
+
+      return updatedVersion;
+    } catch (err) {
+      console.error("Error setting version as current:", err);
+      throw err;
     }
   }
 
   // Then update the version
-  const { error } = await supabase
+  const { error: updateError } = await supabase
     .from("versions")
     .update({
       type: updateData.type,
@@ -149,13 +161,13 @@ export const updateVersion = async (id: string, updateData: Partial<Version>) =>
     })
     .eq("id", id);
 
-  if (error) {
-    console.error("Error updating version:", error);
-    throw error;
+  if (updateError) {
+    console.error("Error updating version:", updateError);
+    throw updateError;
   }
 
   // Return the updated version
-  const { data: updatedVersion, error: fetchError } = await supabase.from("versions").select("*").eq("id", id).maybeSingle();
+  const { data: updatedVersion, error: fetchError } = await supabase.from("versions").select("*").eq("id", id).single();
 
   if (fetchError) {
     console.error("Error fetching updated version:", fetchError);
@@ -171,7 +183,7 @@ export const updateVersion = async (id: string, updateData: Partial<Version>) =>
 
 export const deleteVersion = async (id: string) => {
   // First check if the version exists and is not current
-  const { data: version, error: checkError } = await supabase.from("versions").select("is_current").eq("id", id).maybeSingle();
+  const { data: version, error: checkError } = await supabase.from("versions").select("is_current").eq("id", id).single();
 
   if (checkError) {
     throw new Error(`Version not found: ${checkError.message}`);

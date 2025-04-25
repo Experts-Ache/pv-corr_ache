@@ -39,6 +39,7 @@ import {
   Building2,
   FileText,
   ClipboardList,
+  ArrowLeftRight,
 } from "lucide-react";
 import { ButtonSection } from "./ui/ButtonSection";
 import { useAppNavigation } from "../hooks/useAppNavigation";
@@ -78,6 +79,7 @@ const DashboardLayout = () => {
   const [error, setError] = useState<string | null>(null);
   const [standards, setStandards] = useState<Standard[]>(STANDARDS);
   const t = useTranslation(currentLanguage);
+  const { isAdmin, toggleViewMode } = useAuth();
 
   // Preload translations when component mounts
   useEffect(() => {
@@ -181,7 +183,7 @@ const DashboardLayout = () => {
     loadTranslations();
   };
 
-  const { user, signOut: handleSignOut, isAdmin, toggleViewMode } = useAuth();
+  const { user, signOut: handleSignOut } = useAuth();
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -645,12 +647,11 @@ const DashboardLayout = () => {
                   view={view}
                   match="output"
                   onClick={() => {
-
                     showToast(t("output.view.disabled"), "info");
                   }}
                 >
-                  <FileText size={18} className="opacity-50" />
-                  <span className="opacity-50">{t("nav.output")}</span>
+                  <FileText size={18} />
+                  <span>{t("nav.output")}</span>
                 </ButtonSection>
                 <ButtonSection
                   view={view}
@@ -659,8 +660,8 @@ const DashboardLayout = () => {
                     showToast(t("reports.view.disabled"), "info");
                   }}
                 >
-                  <ClipboardList size={18} className="opacity-50" />
-                  <span className="opacity-50">{t("reports.title")}</span>
+                  <ClipboardList size={18} />
+                  <span>{t("reports.title")}</span>
                 </ButtonSection>
               </>
             )}
@@ -673,9 +674,9 @@ const DashboardLayout = () => {
               </ButtonSection>
             )}
             {isAdmin && (
-              <ButtonSection view={settingsView} match="admin" onClick={toggleViewMode}>
-                <LayoutDashboard size={18} />
-                <span>{t("nav.administration")}</span>
+              <ButtonSection view={settingsView} match="admin" onClick={() => toggleViewMode(true)}>
+                <ArrowLeftRight size={18} />
+                <span>Switch to Admin View</span>
               </ButtonSection>
             )}
             <ButtonSection view={settingsView} match="signout" onClick={handleSignOut}>
@@ -707,4 +708,4 @@ const DashboardLayout = () => {
   );
 };
 
-export default DashboardLayout
+export default DashboardLayout;

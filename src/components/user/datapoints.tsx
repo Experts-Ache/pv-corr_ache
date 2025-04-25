@@ -66,7 +66,7 @@ const Datapoints: React.FC<DatapointsProps> = ({
         setLoading(false);
       }
     };
-    
+
     loadParameters();
   }, []);
 
@@ -80,7 +80,7 @@ const Datapoints: React.FC<DatapointsProps> = ({
         setLoading(true);
         setError(null);
         const datapoints = await fetchDatapointsByZoneId(selectedZone.id);
-        
+
         if (isMounted) {
           console.log("Fetched datapoints:", datapoints);
           setZoneDatapoints(datapoints);
@@ -145,7 +145,7 @@ const Datapoints: React.FC<DatapointsProps> = ({
         project={project}
         field={field}
         currentTheme={currentTheme}
-        currentLanguage={currentLanguage} 
+        currentLanguage={currentLanguage}
         onProjectsChange={(updatedProjects) => {
           onProjectsChange(updatedProjects);
           // Don't trigger refresh here as it causes reload loops
@@ -168,7 +168,7 @@ const Datapoints: React.FC<DatapointsProps> = ({
         onProjectsChange={(updatedProjects) => {
           onProjectsChange(updatedProjects);
           // Trigger a refresh of the datapoints list
-          setDataPointsRefreshKey(prev => prev + 1);
+          setDataPointsRefreshKey((prev) => prev + 1);
         }}
       />
     </div>

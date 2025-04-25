@@ -80,7 +80,7 @@ export const ParameterInput: React.FC<ParameterInputProps> = ({ parameter, value
 
   // Handle key press events
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault(); // Prevent form submission
       validateAndUpdate();
       // Move focus to next input if available

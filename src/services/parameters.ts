@@ -19,6 +19,7 @@ interface ParameterResponse {
   rating_logic_test_cases?: any;
   created_at?: string;
   updated_at?: string;
+  short_id?: string;
 }
 
 export type { Parameter };
@@ -27,12 +28,7 @@ export type { Parameter };
 let parametersCache: Parameter[] | null = null;
 
 export const fetchParameters = async (): Promise<Parameter[]> => {
-  // Return cached parameters if available
-  if (parametersCache && parametersCache.length > 0) {
-    return parametersCache;
-  }
-
-  const { data, error } = await supabase.from("parameters").select("*").order("order_number", { ascending: true });
+  const { data, error } = await supabase.from("parameters").select("*").eq("state", true).order("order_number", { ascending: true });
 
   if (error) {
     console.error("Error fetching parameters:", error);
@@ -46,12 +42,13 @@ export const fetchParameters = async (): Promise<Parameter[]> => {
       orderNumber: param.order_number ?? 0,
       rating_logic_code: param.rating_logic_code || "",
       rating_logic_test_cases: param.rating_logic_test_cases || [],
+      short_id: param.short_id || null,
     };
   });
 
   // Cache the parameters
   parametersCache = parameters;
-  
+
   return parameters;
 };
 
@@ -146,7 +143,7 @@ export const updateParameter = async (id: string, parameter: Partial<Parameter>)
 
 export const deleteParameter = async (id: string) => {
   try {
-    const { error } = await supabase.from("parameters").delete().eq("id", id);
+    const { error } = await supabase.from("parameters").update({ state: false }).eq("id", id);
 
     if (error) {
       console.error("Error deleting parameter:", error);

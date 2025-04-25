@@ -195,7 +195,7 @@ const CompaniesPanel: React.FC<CompaniesPanelProps> = ({
                         }))
                       }
                       required={field.required}
-                      className="w-full p-2 rounded text-sm text-primary"
+                      className="w-full p-2 rounded text-sm "
                     />
                   </div>
                 ))}
@@ -269,6 +269,7 @@ const CompaniesPanel: React.FC<CompaniesPanelProps> = ({
                 <div
                   key={company.id}
                   className="p-4 rounded-lg border transition-all hover:translate-x-1 border-accent text-card-foreground"
+                  onClick={() => handleEdit(company)}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
@@ -315,23 +316,19 @@ const CompaniesPanel: React.FC<CompaniesPanelProps> = ({
                     )}
                     {company.website && (
                       <div>
-                        <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-accent-primary">
+                        <a href={company.website} target="_blank" rel="noopener noreferrer">
                           {company.website}
                         </a>
                       </div>
                     )}
                     {company.email && (
                       <div>
-                        <a href={`mailto:${company.email}`} className="text-accent-primary">
-                          {company.email}
-                        </a>
+                        <a href={`mailto:${company.email}`}>{company.email}</a>
                       </div>
                     )}
                     {company.phone && (
                       <div>
-                        <a href={`tel:${company.phone}`} className="text-accent-primary">
-                          {company.phone}
-                        </a>
+                        <a href={`tel:${company.phone}`}>{company.phone}</a>
                       </div>
                     )}
                     {company.vatId && <div>VAT ID: {company.vatId}</div>}

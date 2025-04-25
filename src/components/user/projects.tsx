@@ -62,7 +62,6 @@ const Projects: React.FC<ProjectsProps> = ({
             <h3 className="text-lg font-medium mb-2">{translation("no.projects.avaible")}</h3>
             <p className="text-muted-foreground mb-4">
               {selectedCustomerId ? translation("no.projects.customer") : translation("no.projects.no.customer")}
-
             </p>
           </div>
         )}

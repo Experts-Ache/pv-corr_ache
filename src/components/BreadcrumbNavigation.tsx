@@ -85,29 +85,29 @@ const BreadcrumbNavigation: React.FC<BreadcrumbNavigationProps> = ({ currentLang
       </Breadcrumb>
 
       <div className="flex items-center gap-4 text-xs text-muted-foreground">
-  <div className="flex items-center gap-2">
-    <User size={12} className="text-muted-foreground" />
-    <span>{user?.email}</span>
-  </div>
-  <div className="flex items-center gap-2">
-    <Tag size={12} className="text-muted-foreground" />
-    <span className="font-medium">
-      {/* Wrap the version number in an anchor tag */}
-      <a
-        href="https://github.com/cavort-konzepte-gmbh/pv-corr/blob/main/CHANGELOG.md"
-        target="_blank" // Opens the link in a new tab
-        rel="noopener noreferrer" // Security best practice for target="_blank"
-        className="hover:underline" // Optional: Add underline on hover for better UX
-      >
-        {version}
-      </a>
-      {/* The Beta/Stable tag remains outside the link */}
-      <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
-        {versionType === "beta" ? "Beta" : "Stable"}
-      </span>
-    </span>
-  </div>
-</div>
+        <div className="flex items-center gap-2">
+          <User size={12} className="text-muted-foreground" />
+          <span>{user?.email}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Tag size={12} className="text-muted-foreground" />
+          <span className="font-medium">
+            {/* Wrap the version number in an anchor tag */}
+            <a
+              href="https://github.com/cavort-konzepte-gmbh/pv-corr/blob/main/CHANGELOG.md"
+              target="_blank" // Opens the link in a new tab
+              rel="noopener noreferrer" // Security best practice for target="_blank"
+              className="hover:underline" // Optional: Add underline on hover for better UX
+            >
+              {version}
+            </a>
+            {/* The Beta/Stable tag remains outside the link */}
+            <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+              {versionType === "beta" ? "Beta" : "Stable"}
+            </span>
+          </span>
+        </div>
+      </div>
     </div>
   );
 };

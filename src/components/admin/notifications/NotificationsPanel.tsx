@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Theme } from "../../../types/theme";
-import { ArrowLeft, BellRing, AlertTriangle, AlertOctagon, Plus, Edit2, Save, X, Clock } from "lucide-react";
+import { BellRing, AlertTriangle, AlertOctagon, Plus, Edit2, Save, X, Clock } from "lucide-react";
 import { NotificationDuration, Notification, DURATION_OPTIONS } from "../../../types/security";
 import { createNotification, updateNotification, deleteNotification, getNotificationsByType } from "../../../services/notifications";
 import { TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, Table } from "@/components/ui/table";
@@ -122,10 +122,7 @@ const NotificationsPanel: React.FC<NotificationsPanelProps> = ({ currentTheme, o
   return (
     <div className="p-8 text-card-foreground">
       <div className="flex items-center gap-4 mb-8">
-        <button onClick={onBack} className="p-2 rounded hover:bg-opacity-80">
-          <ArrowLeft size={20} />
-        </button>
-        <h2 className="text-2xl font-bold">Notifications Management</h2>
+        <h2 className="text-2xl font-bold">Notifications</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

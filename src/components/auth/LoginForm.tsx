@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { Github, Grid2x2, Mail } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 
 interface LoginFormProps {
   currentTheme: Theme;
@@ -87,88 +88,62 @@ const LoginForm: React.FC<LoginFormProps> = ({ currentTheme, onSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  ">
-      <div className="max-w-sm w-full p-8 rounded-lg border border-accent bg-background">
-        <div className="flex gap-4 mb-8">
-          <Button
-            onClick={() => setLoginType("user")}
-            className={`flex-1 p-2 rounded font-medium transition-opacity text-sm  ${
-              loginType === "user" ? "text-primary-foreground hover:bg-theme" : " bg-accent-primary text-primary"
-            }`}
-          >
-            User
-          </Button>
-          <Button
-            onClick={() => setLoginType("admin")}
-            className={`flex-1 p-2 rounded font-medium transition-opacity text-sm  ${
-              loginType === "admin" ? "text-primary-foreground hover:bg-theme" : " bg-accent-primary text-primary"
-            }`}
-          >
-            Admin
-          </Button>
-        </div>
-
-        {error && <div className="p-4 mb-4 rounded text-sm text-primary">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <Label className="block text-sm font-medium mb-2 ">Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full p-2 rounded text-sm   "
-              placeholder="name@company.com"
-            />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium mb-2 ">Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full p-2 rounded text-sm "
-              placeholder="••••••••"
-            />
-          </div>
-
-          <Button type="submit" disabled={loading} className="w-full p-2 rounded font-medium border border-primary">
-            {loading ? "Signing in..." : "Continue"}
-          </Button>
-        </form>
-
-        <div className="flex gap-2 mt-4">
-          <Button
-            onClick={() => signInWithProvider("google")}
-            disabled={loading}
-            className="flex-1 p-1 rounded font-medium bg-accent-primary text-primary flex items-center justify-center gap-2 text-sm border border-primary"
-          >
-            <Mail size={14} />
-            {loading ? "Google..." : "Google"}
-          </Button>
-
-          <Button
-            onClick={() => signInWithProvider("azure")}
-            disabled={loading}
-            className="flex-1 p-1 rounded font-medium bg-accent-primary text-primary flex items-center justify-center gap-2 text-sm border border-primary"
-          >
-            <Grid2x2 size={14} />
-            {loading ? "Microsoft..." : "Microsoft"}
-          </Button>
-        </div>
-
-        <Button
-          onClick={() => signInWithProvider("github")}
-          disabled={loading}
-          className="w-full p-1 rounded font-medium bg-accent-primary text-primary mt-2 flex items-center justify-center gap-2 text-sm border border-primary"
-        >
-          <Github size={14} />
-          {loading ? "GitHub..." : "GitHub"}
-        </Button>
-      </div>
+    <div className="min-h-screen flex items-center justify-center">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-[2rem] tracking-tighter">Login</CardTitle>
+          <CardDescription className="text-[1rem]">Enter your email below to login to your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form className="flex flex-col gap-y-6" onSubmit={handleSubmit}>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                placeholder="name@company.com"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <a href="#" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                  Forgot your password?
+                </a>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                placeholder="••••••••"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? "Signing in..." : "Login"}
+            </Button>
+            <Button variant="outline" className="w-full" disabled={loading} onClick={() => signInWithProvider("google")}>
+              Login with Google
+            </Button>
+            <Button variant="outline" className="w-full" disabled={loading} onClick={() => signInWithProvider("azure")}>
+              Login with Microsoft
+            </Button>
+            <Button variant="outline" className="w-full" disabled={loading} onClick={() => signInWithProvider("github")}>
+              Login with GitHub
+            </Button>
+            <div className="mt-4 text-center text-sm">
+              Go back to the {""}
+              <a className="underline underline-offset-4" href="https://pv-corr.app/">
+                home
+              </a>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

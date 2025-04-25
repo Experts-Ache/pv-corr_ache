@@ -3,7 +3,9 @@ import { Language, LANGUAGES, useTranslation, setTranslations } from "../../../.
 import { fetchTranslations } from "../../../../services/translations";
 import { updateUserSettings } from "../../../../services/userSettings";
 import { showToast } from "../../../../lib/toast";
+import LogoUpload from "./LogoUpload";
 import { Button } from "@/components/ui/button";
+import { Select, SelectTrigger, SelectContent, SelectGroup, SelectItem } from "@/components/ui/select";
 
 interface GeneralSettingsProps {
   currentLanguage: Language;
@@ -14,6 +16,8 @@ interface GeneralSettingsProps {
   onShowHiddenIdsChange: (show: boolean) => void;
   currentTheme: any;
   onThemeChange: (theme: string) => void;
+  logoUrl?: string | null;
+  onLogoChange: (logoUrl: string | null) => void;
 }
 
 const GeneralSettings: React.FC<GeneralSettingsProps> = ({
@@ -25,6 +29,8 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
   onShowHiddenIdsChange,
   currentTheme,
   onThemeChange,
+  logoUrl,
+  onLogoChange,
 }) => {
   const t = useTranslation(currentLanguage);
   const [updating, setUpdating] = useState(false);
@@ -87,9 +93,9 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
     }
   };
 
-  const handleChangeTheme = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    onThemeChange(event.target.value);
-    handleSettingChange("theme_id", event.target.value);
+  const handleChangeTheme = (value: string) => {
+    onThemeChange(value);
+    handleSettingChange("theme_id", value);
   };
 
   return (
@@ -99,18 +105,18 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <span className="text-3xl font-semibold leading-none">{t("settings.language")}</span>
           <div className="text-muted-foreground">{t("settings.language.description")}</div>
         </div>
-        <select
-          value={currentLanguage}
-          onChange={(e) => handleSettingChange("language", e.target.value, true)}
-          disabled={updating}
-          className="px-3 py-1 rounded font-medium text-sm text-primary border border-input shadow-sm bg-accent"
-        >
-          {LANGUAGES.map((lang) => (
-            <option key={lang.id} value={lang.id}>
-              {lang.name}
-            </option>
-          ))}
-        </select>
+        <Select onValueChange={(value) => handleSettingChange("language", value as Language, true)} disabled={updating}>
+          <SelectTrigger className="w-48">{currentLanguage}</SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {LANGUAGES.map((lang) => (
+                <SelectItem key={lang.id} value={lang.id}>
+                  {lang.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center justify-between p-3 rounded">
@@ -118,15 +124,17 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <span className="text-3xl font-semibold leading-none">{t("settings.decimal_separator")}</span>
           <div className="text-muted-foreground">{t("settings.decimal_separator.description")}</div>
         </div>
-        <select
-          value={decimalSeparator}
-          onChange={(e) => handleSettingChange("decimal_separator", e.target.value)}
-          disabled={updating}
-          className="px-3 py-1 rounded font-medium text-sm text-primary border border-input shadow-sm bg-accent"
-        >
-          <option value=",">{t("settings.decimal_separator.comma")}</option>
-          <option value=".">{t("settings.decimal_separator.point")}</option>
-        </select>
+        <Select onValueChange={(value) => handleSettingChange("language", value as Language, true)} disabled={updating}>
+          <SelectTrigger className="w-96">
+            {t("settings.decimal_separator")}: {decimalSeparator}
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value=",">{t("settings.decimal_separator.comma")}</SelectItem>
+              <SelectItem value=".">{t("settings.decimal_separator.point")}</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center justify-between p-3 rounded">
@@ -149,17 +157,25 @@ const GeneralSettings: React.FC<GeneralSettingsProps> = ({
           <span className="text-3xl font-semibold leading-none">{t("settings.theme")}</span>
           <span className="block text-muted-foreground">{t("settings.select_thme")}</span>
         </div>
-        <select
-          onChange={handleChangeTheme}
-          disabled={updating}
-          className="px-3 py-1 rounded font-medium text-sm text-primary border border-input shadow-sm bg-accent"
-          value={currentTheme}
-        >
-          <option value="zinc">Zinc Light</option>
-          <option value="zinc.dark">Zinc Dark</option>
-          <option value="green">Green Light</option>
-          <option value="green.dark">Green Dark</option>
-        </select>
+        <Select onValueChange={(value) => handleChangeTheme(value)} disabled={updating}>
+          <SelectTrigger className="w-48">{currentTheme}</SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="zinc">Zinc</SelectItem>
+              <SelectItem value="zinc.dark">Zinc Dark</SelectItem>
+              <SelectItem value="green">Green Light</SelectItem>
+              <SelectItem value="green.dark">Green Dark</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="p-3 flex flex-col gap-4 rounded">
+        <div>
+          <span className="text-3xl font-semibold leading-none">{t("settings.company_logo") || "Company Logo"}</span>
+          <span className="block text-muted-foreground">{t("settings.company_logo.description") || "Upload your company logo"}</span>
+        </div>
+        <LogoUpload currentLogo={logoUrl} onLogoChange={onLogoChange} />
       </div>
     </div>
   );

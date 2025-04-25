@@ -373,13 +373,13 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           {(() => {
                             // Special handling for array outputs like zinc loss rate
                             if (Array.isArray(outputs[`${output.id}_full`])) {
-                              return `${outputs[`${output.id}_full`][0]} ± ${outputs[`${output.id}_full`][1]}`;
+                              return `${outputs[`${output.id}_full`][0]} ± ${outputs[`${output.id}_full`][1]}${output.unit ? ` ${output.unit}` : ""}`;
                             } else if (output.id === "zincLossRate" && Array.isArray(outputs[output.id])) {
-                              return `${outputs[output.id][0]} ± ${outputs[output.id][1]}`;
+                              return `${outputs[output.id][0]} ± ${outputs[output.id][1]}${output.unit ? ` ${output.unit}` : ""}`;
                             } else if (typeof outputs[output.id] === "number") {
-                              return outputs[output.id].toFixed(2);
+                              return `${outputs[output.id].toFixed(2)}${output.unit ? ` ${output.unit}` : ""}`;
                             } else {
-                              return "0.00";
+                              return `0.00${output.unit ? ` ${output.unit}` : ""}`;
                             }
                           })()}
                           {output.id === "b0" && ` (${classification.class} - ${classification.stress})`}

@@ -19,32 +19,28 @@ const INITIAL_RETRY_DELAY = 1000; // 1 second
 const wait = (delay: number) => new Promise((resolve) => setTimeout(resolve, delay));
 
 // Helper function to handle retries with exponential backoff
-const retryOperation = async <T>(
-  operation: () => Promise<T>,
-  retries = RETRY_COUNT,
-  delay = INITIAL_RETRY_DELAY
-): Promise<T> => {
+const retryOperation = async <T>(operation: () => Promise<T>, retries = RETRY_COUNT, delay = INITIAL_RETRY_DELAY): Promise<T> => {
   try {
     return await operation();
   } catch (error) {
     if (retries === 0) throw error;
-    
+
     console.log(`Retrying operation. Attempts remaining: ${retries}`);
     await wait(delay);
-    
+
     return retryOperation(operation, retries - 1, delay * 2);
   }
 };
 
 export const deleteDatapoint = async (datapointId: string) => {
   try {
-    const { data, error } = await retryOperation(() => 
+    const { data, error } = await retryOperation(() =>
       supabase.rpc("handle_datapoint_operation_v2", {
         dp_id: toUUID(datapointId),
         dp_name: null,
         dp_values: null,
         operation: "delete",
-      })
+      }),
     );
 
     if (error) {
@@ -98,7 +94,7 @@ export const updateDatapoint = async (
           values: processedValues,
         })
         .eq("id", toUUID(datapointId))
-        .select("*")
+        .select("*"),
     );
 
     if (error) {
@@ -110,11 +106,7 @@ export const updateDatapoint = async (
     showToast("Datapoint updated successfully", "success");
 
     const { data: zoneData, error: zoneError } = await retryOperation(() =>
-      supabase
-        .from("datapoints")
-        .select("zone_id")
-        .eq("id", toUUID(datapointId))
-        .single()
+      supabase.from("datapoints").select("zone_id").eq("id", toUUID(datapointId)).single(),
     );
 
     if (zoneError) {
@@ -176,7 +168,7 @@ export const createDatapoint = async (
       // Include all values, even empty ones
       processedValues[key] = value;
     });
-    
+
     // Log the processed values for debugging
     console.log("Processed values for datapoint:", processedValues);
 
@@ -203,7 +195,7 @@ export const createDatapoint = async (
         dp_name: data.name.trim(),
         dp_values: datapointData,
         operation: "create",
-      })
+      }),
     );
 
     if (error) {
@@ -257,11 +249,7 @@ export const fetchDatapointsByZoneId = async (zoneId: string): Promise<Datapoint
 
     // First check if the zone exists with retry mechanism
     const { data: zoneExists, error: zoneError } = await retryOperation(() =>
-      supabase
-        .from("zones")
-        .select("id")
-        .eq("id", zoneUUID)
-        .single()
+      supabase.from("zones").select("id").eq("id", zoneUUID).single(),
     );
 
     if (zoneError) {
@@ -278,11 +266,7 @@ export const fetchDatapointsByZoneId = async (zoneId: string): Promise<Datapoint
 
     // Query datapoints with retry mechanism
     const { data, error } = await retryOperation(() =>
-      supabase
-        .from("datapoints")
-        .select("*")
-        .eq("zone_id", zoneUUID)
-        .order("timestamp", { ascending: false })
+      supabase.from("datapoints").select("*").eq("zone_id", zoneUUID).order("timestamp", { ascending: false }),
     );
 
     if (error) {

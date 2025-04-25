@@ -1,21 +1,47 @@
 import React from "react";
 import { Theme } from "../../types/theme";
-import { Users, Database, Settings, LogOut, BellRing } from "lucide-react";
+import { Database, Settings, LogOut, LayoutDashboard, Tag, Users } from "lucide-react";
 import DatabaseManagement from "./DatabaseManagement";
 import UserManagement from "./UserManagement";
 import AdminSettings from "./AdminSettings";
-import NotificationsPanel from "./notifications/NotificationsPanel";
 import { Language } from "../../types/language";
 import { supabase } from "../../lib/supabase";
+import { getCurrentVersion } from "../../services/versions";
 import { Button } from "../ui/button";
+import { ButtonSection } from "../ui/ButtonSection";
 
 interface AdminDashboardProps {
   currentTheme: Theme;
   currentLanguage: Language;
+  onSwitchToUserView?: () => void;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLanguage }) => {
-  const [activeView, setActiveView] = React.useState<"overview" | "database" | "users" | "notifications" | "settings">("overview");
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLanguage, onSwitchToUserView }) => {
+  const [activeView, setActiveView] = React.useState<"database" | "settings">("database");
+  const [showUserManagement, setShowUserManagement] = React.useState(false);
+  const [currentVersion, setCurrentVersion] = React.useState<string>("1.0.0");
+  const [versionType, setVersionType] = React.useState<string>("stable");
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    const loadVersion = async () => {
+      const version = await getCurrentVersion();
+      if (version) {
+        setCurrentVersion(version.version);
+        setVersionType(version.type || "stable");
+      }
+    };
+
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (data.user) {
+        setUser(data.user);
+      }
+    };
+
+    loadVersion();
+    loadUser();
+  }, []);
 
   const handleSignOut = async () => {
     try {
@@ -29,90 +55,68 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
 
   return (
     <div className="min-h-screen">
-      {activeView === "database" ? (
-        <DatabaseManagement currentTheme={currentTheme} currentLanguage={currentLanguage} onBack={() => setActiveView("overview")} />
-      ) : activeView === "users" ? (
-        <UserManagement currentTheme={currentTheme} onBack={() => setActiveView("overview")} />
-      ) : activeView === "settings" ? (
-        <AdminSettings currentTheme={currentTheme} onBack={() => setActiveView("overview")} />
-      ) : activeView === "notifications" ? (
-        <NotificationsPanel currentTheme={currentTheme} onBack={() => setActiveView("overview")} />
-      ) : (
-        <div className="p-8">
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-3xl font-bold text-card-foreground">Admin Dashboard</h1>
-            <Button onClick={handleSignOut} className="flex items-center gap-2 px-4 py-2 rounded text-sm transition-colors">
-              <LogOut size={16} />
-              Sign Out
+      {/* Top Navigation Bar */}
+      <div className="h-14 border-b flex items-center px-4 border-input bg-card">
+        <div className="flex-1 flex items-center gap-6">
+          <ButtonSection view={activeView} match="database" onClick={() => setActiveView("database")}>
+            <Database size={18} />
+            <span>Database</span>
+          </ButtonSection>
+          <ButtonSection view={activeView} match="settings" onClick={() => setActiveView("settings")}>
+            <Settings size={18} />
+            <span>Settings</span>
+          </ButtonSection>
+        </div>
+        <div className="flex items-center gap-4">
+          {onSwitchToUserView && (
+            <Button onClick={onSwitchToUserView} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
+              <LayoutDashboard size={16} />
+              Switch to User View
             </Button>
-          </div>
+          )}
+          <Button onClick={handleSignOut} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
+            <LogOut size={16} />
+            Sign Out
+          </Button>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* User Management */}
-            <div
-              onClick={() => setActiveView("users")}
-              className="p-6 rounded-lg text-card-foreground border border-accent bg-card hover:cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                  <Users className="text-accent-primary" size={20} />
-                </div>
-                <div>
-                  <h3 className="font-medium">User Management</h3>
-                  <p className="text-sm text-muted-foreground">Manage user accounts</p>
-                </div>
-              </div>
+      {/* Admin Dashboard Title Bar */}
+      <div className="h-10 border-b border-input bg-card/50 flex items-center justify-between px-4">
+        <div className="text-sm text-muted-foreground">Admin Dashboard</div>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          {user && (
+            <div className="flex items-center gap-2">
+              <Users size={12} className="text-muted-foreground" />
+              <span>{user.email}</span>
             </div>
-
-            {/* Database Management */}
-            <div
-              onClick={() => setActiveView("database")}
-              className="p-6 rounded-lg text-card-foreground border border-accent bg-card hover:cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                  <Database className="text-accent-primary" size={20} />
-                </div>
-                <div>
-                  <h3 className="font-medium">Database</h3>
-                  <p className="text-sm text-muted-foreground">Manage database records</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Notifications Management */}
-            <div
-              onClick={() => setActiveView("notifications")}
-              className="p-6 rounded-lg text-card-foreground border border-accent bg-card hover:cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                  <BellRing className="text-accent-primary" size={20} />
-                </div>
-                <div>
-                  <h3 className="font-medium">Notifications</h3>
-                  <p className="text-sm text-muted-foreground">Manage notifications</p>
-                </div>
-              </div>
-            </div>
-
-            {/* System Settings */}
-            <div
-              onClick={() => setActiveView("settings")}
-              className="p-6 rounded-lg text-card-foreground border border-accent bg-card hover:cursor-pointer"
-            >
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                  <Settings className="text-accent-primary" size={20} />
-                </div>
-                <div>
-                  <h3 className="font-medium">Settings</h3>
-                  <p className="text-sm text-muted-foreground">System configuration</p>
-                </div>
-              </div>
-            </div>
+          )}
+          <div className="flex items-center gap-2">
+            <Tag size={12} className="text-muted-foreground" />
+            <span className="font-medium">
+              <a
+                href="https://github.com/cavort-konzepte-gmbh/pv-corr/blob/main/CHANGELOG.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:underline"
+              >
+                {currentVersion}
+              </a>
+              <span className="ml-1 px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px]">
+                {versionType === "beta" ? "Beta" : "Stable"}
+              </span>
+            </span>
           </div>
         </div>
+      </div>
+
+      {/* Main Content */}
+      {showUserManagement ? (
+        <UserManagement currentTheme={currentTheme} onBack={() => setShowUserManagement(false)} />
+      ) : activeView === "settings" ? (
+        <AdminSettings currentTheme={currentTheme} currentLanguage={currentLanguage} onBack={() => setActiveView("database")} />
+      ) : (
+        <DatabaseManagement currentTheme={currentTheme} currentLanguage={currentLanguage} onBack={() => setActiveView("dashboard")} />
       )}
     </div>
   );

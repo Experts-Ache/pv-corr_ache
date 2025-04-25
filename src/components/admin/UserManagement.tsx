@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Theme } from "../../types/theme";
-import { Shield, User, Search, Edit2, Save, X, ArrowLeft, Trash2, Plus } from "lucide-react";
+import { Shield, User, Search, Edit2, Save, X, Trash2, Plus } from "lucide-react";
 import { AdminUser, createUser, deleteUser, listUsers, updateUser } from "../../services/adminUsers";
 import { supabaseAdmin } from "../../lib/supabase";
 import { Button } from "@/components/ui/button";
@@ -148,10 +148,7 @@ const UserManagement: React.FC<UserManagementProps> = ({ currentTheme, onBack })
   return (
     <div className="p-8">
       <div className="flex items-center gap-4 mb-8">
-        <Button variant="ghost" onClick={onBack}>
-          <ArrowLeft className="text-card-foreground" size={20} />
-        </Button>
-        <h2 className="text-2xl font-bold text-card-foreground">User Management</h2>
+        <h2 className="text-2xl font-bold">User Management</h2>
       </div>
 
       {error && (

@@ -12,7 +12,7 @@ import { Label } from "@radix-ui/react-label";
 interface TranslationsPanelProps {
   currentTheme: Theme;
   currentLanguage: Language;
-  onBack?: () => void;
+  onBack: () => void;
 }
 
 const TranslationsPanel: React.FC<TranslationsPanelProps> = ({ currentTheme, currentLanguage, onBack }) => {
@@ -102,13 +102,8 @@ const TranslationsPanel: React.FC<TranslationsPanelProps> = ({ currentTheme, cur
 
   return (
     <div className="p-6">
-      <div className="flex items-center gap-4 mb-6">
-        {onBack && (
-          <Button onClick={onBack} variant="ghost" className="p-2 rounded hover:bg-opacity-80">
-            <ArrowLeft size={20} />
-          </Button>
-        )}
-        <h2 className="text-2xl font-bold">Translations Management</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">Translations</h2>
       </div>
 
       <div className="flex items-center justify-between mb-6">

@@ -47,7 +47,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
   const [isAdding, setIsAdding] = useState(false);
   const [newValues, setNewValues] = useState({
     name: "",
-    values: {} as Record<string, string>
+    values: {} as Record<string, string>,
   });
   const [showMediaDialog, setShowMediaDialog] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -81,7 +81,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
 
     const sorted = [...datapoints].sort((a, b) => {
       const multiplier = sortDirection === "asc" ? 1 : -1;
-      
+
       switch (sortField) {
         case "name":
           return multiplier * (a.name || "").localeCompare(b.name || "");
@@ -98,7 +98,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
   // Fetch datapoints when zoneId or refreshCounter changes
   useEffect(() => {
     if (!zoneId) return;
-    
+
     const fetchData = async () => {
       setIsLoading(true);
       try {
@@ -112,8 +112,8 @@ const DatapointList: React.FC<DatapointListProps> = ({
       } finally {
         setIsLoading(false);
       }
-    }
-    
+    };
+
     fetchData();
   }, [zoneId, refreshCounter]);
 
@@ -151,7 +151,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
     try {
       setIsProcessing(true);
       setError(null);
-      
+
       if (!zoneId) {
         setError("Zone ID is required");
         return;
@@ -164,7 +164,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
 
       // Prepare values object from parameter inputs
       const values: Record<string, string> = { ...parameterValues };
-      
+
       // Log the values being sent
       console.log("Values being sent to createDatapoint:", values);
 
@@ -176,13 +176,13 @@ const DatapointList: React.FC<DatapointListProps> = ({
       });
 
       // Trigger a refresh by incrementing the counter
-      setRefreshCounter(prev => prev + 1);
+      setRefreshCounter((prev) => prev + 1);
 
       setIsAdding(false);
       setNewName("");
       setNewValues({
         name: "",
-        values: {}
+        values: {},
       });
       setParameterValues({});
     } catch (err) {
@@ -218,13 +218,13 @@ const DatapointList: React.FC<DatapointListProps> = ({
       });
 
       // Trigger a refresh by incrementing the counter
-      setRefreshCounter(prev => prev + 1);
+      setRefreshCounter((prev) => prev + 1);
 
       // Reset editing state
       setEditingDatapoint(null);
       setEditingName("");
       setEditingValues({});
-      
+
       showToast("success", "Datapoint updated successfully");
     } catch (err) {
       console.error("Error updating datapoint:", err);
@@ -239,7 +239,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
       await deleteDatapoint(datapointId);
 
       // Trigger a refresh by incrementing the counter
-      setRefreshCounter(prev => prev + 1);
+      setRefreshCounter((prev) => prev + 1);
 
       // Reset editing state if we just deleted the datapoint we were editing
       if (editingDatapoint === datapointId) {
@@ -344,7 +344,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
                         onChange={(value) =>
                           setParameterValues((prev) => ({
                             ...prev,
-                            [param.id]: value
+                            [param.id]: value,
                           }))
                         }
                         currentTheme={currentTheme}
@@ -367,7 +367,7 @@ const DatapointList: React.FC<DatapointListProps> = ({
                           setNewName("");
                           setNewValues({
                             name: "",
-                            values: {}
+                            values: {},
                           });
                           setParameterValues({});
                         }}

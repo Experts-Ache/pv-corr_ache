@@ -140,7 +140,6 @@ const ProjectList: React.FC<ProjectListProps> = ({
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
                             <div className="flex items-center gap-4">
-
                               <span>{project.name}</span>
                               <div className="flex items-center gap-2">
                                 <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">

@@ -6,6 +6,7 @@ import { fetchTranslations } from "../../services/translations";
 import LoginForm from "./LoginForm";
 import AdminDashboard from "../admin/AdminDashboard";
 import { Session } from "@supabase/supabase-js";
+import { showToast } from "../../lib/toast";
 
 interface AuthContextType {
   user: any;
@@ -168,8 +169,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, currentThe
     }
   };
 
-  const toggleViewMode = () => {
-    setViewMode((prev) => (prev === "user" ? "admin" : "user"));
+  const toggleViewMode = (showToasts = true) => {
+    const newMode = viewMode === "user" ? "admin" : "user";
+    setViewMode(newMode);
+
+    if (showToasts) {
+      showToast(`Switched to ${newMode === "user" ? "User" : "Admin"} view`, "success");
+    }
   };
 
   if (loading) {
@@ -186,7 +192,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, currentThe
 
   // Show admin dashboard for admin users who logged in through admin login
   if (isAdmin && (loginType === "admin" || viewMode === "admin")) {
-    return <AdminDashboard currentTheme={currentTheme} currentLanguage={currentLanguage} />;
+    return <AdminDashboard currentTheme={currentTheme} currentLanguage={currentLanguage} onSwitchToUserView={() => toggleViewMode(true)} />;
   }
 
   return <AuthContext.Provider value={{ user, signOut, isAdmin, loginType, viewMode, toggleViewMode }}>{children}</AuthContext.Provider>;

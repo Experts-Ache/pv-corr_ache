@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Theme, THEMES } from "../../types/theme";
 import { Language } from "../../types/language";
 import { Company } from "../../types/companies";
@@ -10,6 +10,7 @@ import CompaniesSettings from "./elements/settings/CompaniesSettings";
 import PeopleSettings from "./elements/settings/PeopleSettings";
 import DatapointsSettings from "./elements/settings/DatapointsSettings";
 import { Person } from "../../types/people";
+import { supabase } from "../../lib/supabase";
 
 interface SettingsProps {
   view: "general" | "theme" | "people" | "companies" | "datapoints" | "translations";
@@ -62,10 +63,34 @@ const Settings: React.FC<SettingsProps> = ({
   onSavePeople,
   onCreateCustomer,
 }) => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
   // Ensure translations are loaded when the settings component mounts
   React.useEffect(() => {
     loadLanguageTranslations(currentLanguage);
   }, [currentLanguage]);
+
+  // Load user settings including logo URL
+  React.useEffect(() => {
+    const loadUserSettings = async () => {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (user?.user_metadata?.logo_url) {
+          setLogoUrl(user.user_metadata.logo_url);
+        }
+      } catch (err) {
+        console.error("Error loading user settings:", err);
+      }
+    };
+
+    loadUserSettings();
+  }, []);
+
+  const handleLogoChange = (newLogoUrl: string | null) => {
+    setLogoUrl(newLogoUrl);
+  };
 
   return (
     <div className="flex-1 p-6 overflow-auto">
@@ -79,6 +104,8 @@ const Settings: React.FC<SettingsProps> = ({
           onShowHiddenIdsChange={onShowHiddenIdsChange}
           currentTheme={currentTheme}
           onThemeChange={onThemeChange}
+          logoUrl={logoUrl}
+          onLogoChange={handleLogoChange}
         />
       )}
 

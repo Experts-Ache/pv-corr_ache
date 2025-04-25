@@ -157,12 +157,23 @@ const VersionManagement: React.FC<VersionManagementProps> = ({ currentTheme, onB
 
   const handleSetCurrent = async (versionId: string) => {
     try {
-      await supabase.rpc("set_version_as_current", { version_id: versionId });
+      setLoading(true);
+      const { error } = await supabase.rpc("set_version_as_current", { version_id: versionId });
+
+      if (error) {
+        console.error("Error setting current version:", error);
+        setError(`Failed to set current version: ${error.message}`);
+        throw error;
+      }
 
       await loadVersions();
+      showToast("Version set as current successfully", "success");
     } catch (err) {
       console.error("Error setting current version:", err);
-      setError("Failed to set current version");
+      setError("Failed to set current version: " + (err instanceof Error ? err.message : String(err)));
+      showToast(`Failed to set current version: ${err instanceof Error ? err.message : "Unknown error"}`, "error");
+    } finally {
+      setLoading(false);
     }
   };
 

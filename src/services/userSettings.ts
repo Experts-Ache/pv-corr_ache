@@ -6,6 +6,7 @@ export interface UserSettings {
   decimalSeparator: "," | ".";
   showHiddenIds: boolean;
   theme_id: ThemeId;
+  logo_url?: string | null;
 }
 
 export const fetchUserSettings = async (): Promise<UserSettings | null> => {
@@ -23,6 +24,7 @@ export const fetchUserSettings = async (): Promise<UserSettings | null> => {
       decimalSeparator: metadata.decimal_separator || ",",
       showHiddenIds: metadata.show_hidden_ids || false,
       theme_id: metadata.theme_id || "ferra",
+      logo_url: metadata.logo_url || null,
     };
   } catch (err) {
     console.error("Error in fetchUserSettings:", err);
@@ -39,6 +41,7 @@ export const updateUserSettings = async (settings: Partial<UserSettings>): Promi
         ...(settings.decimalSeparator && { decimal_separator: settings.decimalSeparator }),
         ...(settings.showHiddenIds !== undefined && { show_hidden_ids: settings.showHiddenIds }),
         ...(settings.theme_id && { theme_id: settings.theme_id }),
+        ...(settings.logo_url !== undefined && { logo_url: settings.logo_url }),
       },
     });
 

@@ -91,7 +91,7 @@ const ZoneList: React.FC<ZoneListProps> = ({ currentTheme, zones, onSelectZone, 
 
       return sortDirection === "asc" ? comparison : -comparison;
     });
-    
+
     setSortedZones(sorted);
   }, [zones, sortField, sortDirection]);
 

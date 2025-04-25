@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Theme } from "../../types/theme";
 import { Language, useTranslation } from "../../types/language";
-import { supabase } from "../../lib/supabase";
-import { Plus, Edit2, Save, X, Info, Code, ChevronRight, ChevronDown } from "lucide-react";
+import { Standard } from "../../types/standards";
+import { Plus, Edit2, Save, X, Info, Code, ChevronRight, ChevronDown, Tag } from "lucide-react";
 import { generateHiddenId } from "../../utils/generateHiddenId";
 import { Parameter } from "../../types/parameters";
 import { showToast } from "../../lib/toast";
@@ -11,10 +11,12 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Table } from "../ui/table";
 import { Textarea } from "../ui/textarea";
+import { supabase } from "../../lib/supabase";
 
 interface OutputConfig {
   id: string;
   name: string;
+  unit: string;
   formula: string;
   description: string;
 }
@@ -38,6 +40,7 @@ const OutputConfigDialog: React.FC<OutputConfigDialogProps> = ({ isOpen, onClose
       {
         id: generateHiddenId(),
         name: "",
+        unit: "",
         formula: "",
         description: "",
       },
@@ -62,17 +65,30 @@ const OutputConfigDialog: React.FC<OutputConfigDialogProps> = ({ isOpen, onClose
         <div className="space-y-4">
           {outputs.map((output) => (
             <div key={output.id} className="p-4 rounded border border-theme">
-              <div className="flex items-center justify-between mb-4">
-                <Input
-                  type="text"
-                  value={output.name}
-                  onChange={(e) => handleUpdateOutput(output.id, "name", e.target.value)}
-                  className="p-2 rounded text-sm text-primary border-theme border-solid bg-theme"
-                  placeholder="Output name (e.g. B0, B1)"
-                />
-                <Button onClick={() => handleRemoveOutput(output.id)} className="p-1 rounded hover:bg-opacity-80 text-secondary">
-                  <X size={14} />
-                </Button>
+              <div className="flex flex-col gap-4 mb-4">
+                <div className="flex items-center justify-between">
+                  <Input
+                    type="text"
+                    value={output.name}
+                    onChange={(e) => handleUpdateOutput(output.id, "name", e.target.value)}
+                    className="p-2 rounded text-sm text-primary border-theme border-solid bg-theme"
+                    placeholder="Output name (e.g. B0, B1)"
+                  />
+                  <Button onClick={() => handleRemoveOutput(output.id)} className="p-1 rounded hover:bg-opacity-80 text-secondary">
+                    <X size={14} />
+                  </Button>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Tag size={14} className="text-muted-foreground" />
+                  <Input
+                    type="text"
+                    value={output.unit || ""}
+                    onChange={(e) => handleUpdateOutput(output.id, "unit", e.target.value)}
+                    className="p-2 rounded text-sm text-primary border-theme border-solid bg-theme"
+                    placeholder="Output unit (e.g. year, μm/year)"
+                  />
+                </div>
               </div>
 
               <div className="space-y-2">
@@ -170,8 +186,13 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
       if (paramsData.error) throw paramsData.error;
       if (normParamsData.error) throw normParamsData.error;
 
+      const formattedParams = (paramsData.data || []).map((param) => ({
+        ...param,
+        shortName: param.short_name,
+      }));
+
       setNorms(normsData.data || []);
-      setParameters(paramsData.data || []);
+      setParameters(formattedParams || []);
       setNormParameters(normParamsData.data || []);
     } catch (err) {
       console.error("Error loading data:", err);
@@ -475,6 +496,8 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
                                   <tr>
                                     <th className="text-left p-2 text-sm font-normal text-muted-foreground">Name</th>
                                     <th className="text-left p-2 text-sm font-normal text-muted-foreground">Parameter Code</th>
+                                    <th className="text-left p-2 text-sm font-normal text-muted-foreground">Short Name</th>
+                                    <th className="text-left p-2 text-sm font-normal text-muted-foreground">Short id</th>
                                   </tr>
                                 </thead>
                                 <tbody>
@@ -511,6 +534,8 @@ export const NormsPanel: React.FC<NormsPanelProps> = ({ currentTheme, currentLan
                                             </Button>
                                           </div>
                                         </td>
+                                        <td className="p-2 text-sm">{param.shortName}</td>
+                                        <td className="p-2 text-sm">{param.short_id}</td>
                                       </tr>
                                     ))}
                                 </tbody>
