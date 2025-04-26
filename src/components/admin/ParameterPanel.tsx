@@ -275,7 +275,25 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                   {parameters.map((parameter) => (
                     <TableRow key={parameter.id}>
                       <TableCell className="p-2 align-middle">{parameter.short_id}</TableCell>
-                      <TableCell className="p-2 align-middle">{parameter.id}</TableCell>
+                      <TableCell className="p-2 align-middle">
+                        <code className="font-mono bg-theme px-2 py-1 rounded text-xs">{parameter.id}</code>
+                        <Button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await navigator.clipboard.writeText(parameter.id);
+                            // Show temporary success indicator
+                            const button = e.currentTarget;
+                            button.innerHTML = "✓";
+                            setTimeout(() => {
+                              button.innerHTML = "Copy";
+                            }, 1000);
+                          }}
+                          className="text-xs px-2 py-1 rounded hover:bg-theme text-muted-foreground"
+                          variant="ghost"
+                        >
+                          Copy
+                        </Button>
+                      </TableCell>
 
                       <TableCell className="p-2 align-middle">
                         {editingParameter === parameter.id ? (
