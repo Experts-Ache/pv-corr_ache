@@ -7,6 +7,7 @@ import { supabase } from "../../lib/supabase";
 import { showToast } from "../../lib/toast";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Button } from "../ui/button";
+import { isObject } from "@/utils/cases";
 
 interface AnalyseResultProps {
   currentTheme: Theme;
@@ -265,6 +266,14 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               try {
                 const calculateOutput = new Function("values", "ratings", formula);
                 const result = calculateOutput(context.values, context.ratings);
+                console.log(`Executing formula for output ${output.id}:`, formula);
+                console.log("Context values:", context.values);
+                console.log("Context ratings:", context.ratings);
+                console.log("Result:", result);
+
+                if (isObject(result)) {
+                  outputs[`${output.id}_error`] = result;
+                }
 
                 // Handle array results (like zinc loss rate)
                 if (Array.isArray(result)) {
@@ -351,6 +360,24 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                 <div className="font-medium text-primary">
                   <span className="font-medium">{t("datapoints")}: </span> {datapoint.name}
                 </div>
+                <div>
+                  {Array.isArray(selectedNorm?.output_config) &&
+                    selectedNorm.output_config.map(
+                      (output: any) =>
+                        output &&
+                        output.id && (
+                          <span
+                            key={output.id}
+                            className="text-sm px-3 py-1 rounded bg-opacity-20 bg-border empty:hidden "
+                            title={output.description}
+                          >
+                            {outputs[`${output.id}_error`] && (
+                              <span className="text-muted-foreground ml-1">{outputs[`${output.id}_error`]?.message}</span>
+                            )}
+                          </span>
+                        ),
+                    )}
+                </div>
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-muted-foreground">
                     <span className="font-medium">{t("Created")}:</span>{" "}
@@ -383,6 +410,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                             }
                           })()}
                           {output.id === "b0" && ` (${classification.class} - ${classification.stress})`}
+                          <span className="text-muted-foreground ml-1"></span>
                         </div>
                       ),
                   )}
