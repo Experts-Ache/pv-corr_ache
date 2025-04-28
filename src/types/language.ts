@@ -35,6 +35,8 @@ let translations: TranslationMap = {
   "analysis.report_options": "Report Options",
   "analysis.creating_report": "Creating Report...",
   "analysis.preview_report": "Preview Report",
+  "analysis.calculation_results": "Calculation Results",
+  "analysis.status": "Status",
   "analysis.datapoint_total": "Datapoint Total",
   "analysis.combined_results": "Combined Results",
   "project.latitude": "Latitude",

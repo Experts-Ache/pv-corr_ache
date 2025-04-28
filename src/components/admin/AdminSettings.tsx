@@ -17,42 +17,33 @@ const AdminSettings: React.FC<AdminSettingsProps> = ({ currentTheme, currentLang
 
   return (
     <div className="p-8">
-      <h2 className="text-2xl font-bold mb-8 text-card-foreground">System Configuration</h2>
+      <h2 className="text-2xl font-bold mb-8">System Configuration</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <button onClick={() => setActiveView("general")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8">
+        <button onClick={() => setActiveView("general")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <SettingsIcon size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">General Settings</h3>
-              <p className="text-sm text-muted-foreground">Basic system settings</p>
-            </div>
+            <h3 className="font-medium text-sm">General Settings</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("translations")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("translations")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Globe size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Translations</h3>
-              <p className="text-sm text-muted-foreground">Manage system translations</p>
-            </div>
+            <h3 className="font-medium text-sm">Translations</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("versions")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("versions")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Tag size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Version Management</h3>
-              <p className="text-sm text-muted-foreground">Manage application versions</p>
-            </div>
+            <h3 className="font-medium text-sm">Version Management</h3>
           </div>
         </button>
       </div>

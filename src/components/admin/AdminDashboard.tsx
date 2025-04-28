@@ -84,7 +84,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
       {/* Admin Dashboard Title Bar */}
       <div className="h-10 border-b border-input bg-card/50 flex items-center justify-between px-4">
         <div className="text-sm text-muted-foreground">Admin Dashboard</div>
-        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground">
           {user && (
             <div className="flex items-center gap-2">
               <Users size={12} className="text-muted-foreground" />

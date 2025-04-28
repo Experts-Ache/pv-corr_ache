@@ -6,6 +6,7 @@ import { Edit2, Plus, Save, X, Code, Check } from "lucide-react";
 import { FormHandler, FormInput, FormSelect, DeleteConfirmDialog } from "../shared/FormHandler";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { supabase } from "@/lib/supabase";
+import { fetchUnits } from "@/services/units";
 import { showToast } from "@/lib/toast";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
@@ -107,10 +108,24 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [units, setUnits] = useState<{ unitId: string; name: string; symbol: string }[]>([]);
   const translation = useTranslation(currentLanguage);
 
   useEffect(() => {
     load();
+  }, []);
+
+  useEffect(() => {
+    const loadUnits = async () => {
+      try {
+        const unitsData = await fetchUnits();
+        setUnits(unitsData);
+      } catch (err) {
+        console.error("Error loading units:", err);
+      }
+    };
+    
+    loadUnits();
   }, []);
 
   const load = async () => {
@@ -334,23 +349,11 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                             className="w-full p-1 rounded text-sm"
                           >
                             <option value="">No unit</option>
-                            <option value="Ohm.m">Ohm.m</option>
-                            <option value="Ohm.cm">Ohm.cm</option>
-                            <option value="mmol/kg">mmol/kg</option>
-                            <option value="mg/kg">mg/kg</option>
-                            <option value="g/mol">g/mol</option>
-                            <option value="mg/mmol">mg/mmol</option>
-                            <option value="%">%</option>
-                            <option value="ppm">ppm</option>
-                            <option value="V">V</option>
-                            <option value="mV">mV</option>
-                            <option value="A">A</option>
-                            <option value="mA">mA</option>
-                            <option value="year">year</option>
-                            <option value="µm/year">µm/year</option>
-                            <option value="µm">µm</option>
-                            <option value="cm">cm</option>
-                            <option value="m">m</option>
+                            {units.map((unit) => (
+                              <option key={unit.unitId} value={unit.symbol}>
+                                {unit.symbol} - {unit.name}
+                              </option>
+                            ))}
                           </FormSelect>
                         ) : (
                           parameter.unit || "-"
@@ -480,23 +483,11 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                             className="w-full p-1 rounded text-sm text-primary"
                           >
                             <option value="">No unit</option>
-                            <option value="Ohm.m">Ohm.m</option>
-                            <option value="Ohm.cm">Ohm.cm</option>
-                            <option value="mmol/kg">mmol/kg</option>
-                            <option value="mg/kg">mg/kg</option>
-                            <option value="g/mol">g/mol</option>
-                            <option value="mg/mmol">mg/mmol</option>
-                            <option value="%">%</option>
-                            <option value="ppm">ppm</option>
-                            <option value="V">V</option>
-                            <option value="mV">mV</option>
-                            <option value="A">A</option>
-                            <option value="mA">mA</option>
-                            <option value="year">year</option>
-                            <option value="µm/year">µm/year</option>
-                            <option value="µm">µm</option>
-                            <option value="cm">cm</option>
-                            <option value="m">m</option>
+                            {units.map((unit) => (
+                              <option key={unit.unitId} value={unit.symbol}>
+                                {unit.symbol} - {unit.name}
+                              </option>
+                            ))}
                           </FormSelect>
                         ) : null}
                       </TableCell>

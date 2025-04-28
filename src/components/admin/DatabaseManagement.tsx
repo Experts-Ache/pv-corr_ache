@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Theme } from "../../types/theme";
 import { Table, ClipboardList, Wrench, Ruler, FlaskRound as Flask, Building2, GraduationCap, Globe } from "lucide-react";
 import SubstructuresManagement from "./SubstructuresManagement";
+import UnitsManagement from "./UnitsManagement";
 import NeighboringStructuresManagement from "./NeighboringStructuresManagement";
 import FoundationsManagement from "./FoundationsManagement";
 import ExpertsManagement from "./ExpertsManagement";
@@ -32,6 +33,7 @@ const DatabaseManagement: React.FC<DatabaseManagementProps> = ({ currentTheme, o
     | "experts"
     | "norms"
     | "translations"
+    | "units"
   >("overview");
   const [standards, setStandards] = useState([]);
 
@@ -39,112 +41,94 @@ const DatabaseManagement: React.FC<DatabaseManagementProps> = ({ currentTheme, o
     <div className="p-8 text-card-foreground">
       <h2 className="text-2xl font-bold mb-8">Database Management</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <button onClick={() => setActiveView("parameters")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-8">
+        <button onClick={() => setActiveView("parameters")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Table size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Parameters</h3>
-              <p className="text-sm text-muted-foreground">Manage parameters</p>
-            </div>
+            <h3 className="font-medium text-sm">Parameters</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("norms")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("norms")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <ClipboardList size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Norms</h3>
-              <p className="text-sm text-muted-foreground">Manage norms</p>
-            </div>
+            <h3 className="font-medium text-sm">Norms</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("constants")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("constants")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Ruler size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Physical Constants</h3>
-              <p className="text-sm text-muted-foreground">Manage physical constants</p>
-            </div>
+            <h3 className="font-medium text-sm">Constants</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("translations")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("translations")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Globe size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Translations</h3>
-              <p className="text-sm text-muted-foreground">Manage translations</p>
-            </div>
+            <h3 className="font-medium text-sm">Translations</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("materials")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("materials")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Flask size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Materials</h3>
-              <p className="text-sm text-muted-foreground">Manage materials</p>
-            </div>
+            <h3 className="font-medium text-sm">Materials</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("foundations")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("foundations")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Building2 size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Foundations</h3>
-              <p className="text-sm text-muted-foreground">Manage foundations</p>
-            </div>
+            <h3 className="font-medium text-sm">Foundations</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("experts")} className="p-6 rounded-lg border border-accent text-accent-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("experts")} className="p-4 rounded-lg border border-accent text-accent-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <GraduationCap size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Experts</h3>
-              <p className="text-sm text-muted-foreground">Manage experts</p>
-            </div>
+            <h3 className="font-medium text-sm">Experts</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("neighboring")} className="p-6 rounded-lg border border-accent text-accent-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("neighboring")} className="p-4 rounded-lg border border-accent text-accent-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Building2 size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Neighboring Structures</h3>
-              <p className="text-sm text-muted-foreground">Manage neighboring structures</p>
-            </div>
+            <h3 className="font-medium text-sm">Neighboring</h3>
           </div>
         </button>
 
-        <button onClick={() => setActiveView("substructures")} className="p-6 rounded-lg border border-accent text-card-foreground bg-card">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+        <button onClick={() => setActiveView("substructures")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
               <Wrench size={20} />
             </div>
-            <div className="text-left">
-              <h3 className="font-medium">Substructures</h3>
-              <p className="text-sm text-muted-foreground">Manage substructure systems</p>
+            <h3 className="font-medium text-sm">Substructures</h3>
+          </div>
+        </button>
+
+        <button onClick={() => setActiveView("units")} className="p-4 rounded-lg border border-accent text-card-foreground bg-card">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <Ruler size={20} />
             </div>
+            <h3 className="font-medium text-sm">Units</h3>
           </div>
         </button>
       </div>
@@ -171,6 +155,8 @@ const DatabaseManagement: React.FC<DatabaseManagementProps> = ({ currentTheme, o
           <FoundationsManagement currentTheme={currentTheme} onBack={() => setActiveView("parameters")} />
         ) : activeView === "neighboring" ? (
           <NeighboringStructuresManagement currentTheme={currentTheme} onBack={() => setActiveView("parameters")} />
+        ) : activeView === "units" ? (
+          <UnitsManagement currentTheme={currentTheme} onBack={() => setActiveView("parameters")} />
         ) : (
           <div className="p-6">
             <DatabaseOverview currentTheme={currentTheme} />

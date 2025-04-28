@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Theme } from "../../types/theme";
 import { Language, useTranslation } from "../../types/language";
-import { FileText, ChevronDown, ChevronRight, FileCheck } from "lucide-react";
+import { ChevronDown, ChevronRight, AlertTriangle, AlertCircle, CheckCircle } from "lucide-react";
 import { Datapoint } from "../../types/projects";
 import { supabase } from "../../lib/supabase";
 import { showToast } from "../../lib/toast";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Button } from "../ui/button";
 import { isObject } from "@/utils/cases";
+import { CalculationResult, createErrorResult } from "@/types/calculations";
 
 interface AnalyseResultProps {
   currentTheme: Theme;
@@ -27,6 +28,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
   zone,
 }) => {
   const t = useTranslation(currentLanguage);
+  const [expandedMetadata, setExpandedMetadata] = useState<Set<string>>(new Set());
   const [initializing, setInitializing] = useState(true);
   const [expandedDatapoints, setExpandedDatapoints] = useState<Set<string>>(new Set());
   const [parameters, setParameters] = useState<any[]>([]);
@@ -122,6 +124,140 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       }
       return next;
     });
+  };
+
+  const toggleMetadata = (outputId: string) => {
+    setExpandedMetadata((prev) => {
+      const next = new Set(prev);
+      if (next.has(outputId)) {
+        next.delete(outputId);
+      } else {
+        next.add(outputId);
+      }
+      return next;
+    });
+  };
+
+  const formatOutput = (output: any, outputId: string): React.ReactNode => {
+    // Handle null or undefined output
+    if (!output) return <span className="text-muted-foreground">No data</span>;
+
+    // Handle calculation result format
+    if (typeof output === 'object' && 'success' in output) {
+      const result = output as CalculationResult;
+
+      // Handle error results
+      if (!result.success) {
+        return (
+          <div className="text-destructive">
+            {result.errors && result.errors.length > 0 && (
+              <div className="text-xs">
+                {result.errors.map((error, i) => (
+                  <div key={i}>{error}</div>
+                ))}
+              </div>
+            )}
+            {result.metadata && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="mt-1 text-xs h-6 px-2"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleMetadata(outputId);
+                }}
+              >
+                {expandedMetadata.has(outputId) ? "Hide details" : "Show details"}
+              </Button>
+            )}
+            {expandedMetadata.has(outputId) && result.metadata && (
+              <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
+                {JSON.stringify(result.metadata, null, 2)}
+              </pre>
+            )}
+          </div>
+        );
+      }
+      
+      // Handle successful results
+      return (
+        <div className="font-medium">
+          {result.value !== undefined ? result.value : ''}
+          {result.message && <div className="text-xs font-normal text-muted-foreground">{result.message}</div>}
+          {result.warnings && result.warnings.length > 0 && (
+            <div className="text-xs font-normal text-yellow-500">
+              {result.warnings.map((warning, i) => (
+                <div key={i} className="flex items-start gap-1">
+                  <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                  <span>{warning}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          {result.metadata && (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="mt-1 text-xs h-6 px-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleMetadata(outputId);
+              }}
+            >
+              {expandedMetadata.has(outputId) ? "Hide details" : "Show details"}
+            </Button>
+          )}
+          {expandedMetadata.has(outputId) && result.metadata && (
+            <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
+              {JSON.stringify(result.metadata, null, 2)}
+            </pre>
+          )}
+        </div>
+      );
+    }
+    
+    // Handle legacy number format
+    if (typeof output === 'number') {
+      return output.toFixed(2);
+    }
+    
+    // Handle array format (like zinc loss rate)
+    if (Array.isArray(output)) {
+      if (output.length >= 2) {
+        return `${output[0]} ± ${output[1]}`;
+      }
+      return output.join(', ');
+    }
+    
+    // Handle object with value/sufficient properties (legacy format)
+    if (isObject(output) && 'value' in output) {
+      return (
+        <div className="font-medium">
+          {output.value}
+          {'sufficient' in output && (
+            <div className={`text-xs font-normal ${output.sufficient ? 'text-green-500' : 'text-destructive'}`}>
+              {output.sufficient ? (
+                <div className="flex items-center gap-1">
+                  <CheckCircle size={12} />
+                  <span>Sufficient</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <AlertTriangle size={12} />
+                  <span>Insufficient</span>
+                </div>
+              )}
+            </div>
+          )}
+          {'message' in output && (
+            <div className="text-xs font-normal text-muted-foreground">{output.message}</div>
+          )}
+        </div>
+      );
+    }
+    
+    // Default case: stringify the output
+    return String(output);
   };
 
   // Show loading state while initializing or loading parameters
@@ -361,22 +497,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                   <span className="font-medium">{t("datapoints")}: </span> {datapoint.name}
                 </div>
                 <div>
-                  {Array.isArray(selectedNorm?.output_config) &&
-                    selectedNorm.output_config.map(
-                      (output: any) =>
-                        output &&
-                        output.id && (
-                          <span
-                            key={output.id}
-                            className="text-sm px-3 py-1 rounded bg-opacity-20 bg-border empty:hidden "
-                            title={output.description}
-                          >
-                            {outputs[`${output.id}_error`] && (
-                              <span className="text-muted-foreground ml-1">{outputs[`${output.id}_error`]?.message}</span>
-                            )}
-                          </span>
-                        ),
-                    )}
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-muted-foreground">
@@ -389,32 +509,91 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
             </div>
 
             <div className="flex flex-col gap-4">
-              <div className="flex flex-wrap items-center gap-3">
-                {Array.isArray(selectedNorm?.output_config) &&
-                  selectedNorm.output_config.map(
-                    (output: any) =>
-                      output &&
-                      output.id && (
-                        <div key={output.id} className="text-sm px-3 py-1 rounded bg-opacity-20 bg-border" title={output.description}>
-                          <span className="font-medium">{output.name}:</span>{" "}
-                          {(() => {
-                            // Special handling for array outputs like zinc loss rate
-                            if (Array.isArray(outputs[`${output.id}_full`])) {
-                              return `${outputs[`${output.id}_full`][0]} ± ${outputs[`${output.id}_full`][1]}${output.unit ? ` ${output.unit}` : ""}`;
-                            } else if (output.id === "zincLossRate" && Array.isArray(outputs[output.id])) {
-                              return `${outputs[output.id][0]} ± ${outputs[output.id][1]}${output.unit ? ` ${output.unit}` : ""}`;
-                            } else if (typeof outputs[output.id] === "number") {
-                              return `${outputs[output.id].toFixed(2)}${output.unit ? ` ${output.unit}` : ""}`;
-                            } else {
-                              return `0.00${output.unit ? ` ${output.unit}` : ""}`;
-                            }
-                          })()}
-                          {output.id === "b0" && ` (${classification.class} - ${classification.stress})`}
-                          <span className="text-muted-foreground ml-1"></span>
-                        </div>
-                      ),
-                  )}
-              </div>
+              <Table>
+                <TableCaption>{t("analysis.calculation_results")}</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t("analysis.parameter")}</TableHead>
+                    <TableHead>{t("analysis.value")}</TableHead>
+                    <TableHead>{t("analysis.status")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.isArray(selectedNorm?.output_config) &&
+                    selectedNorm.output_config.map((output: any) => {
+                      if (!output || !output.id) return null;
+                      
+                      // Get the output result
+                      const outputResult = outputs[output.id];
+                      const isError = outputs[`${output.id}_error`];
+                      
+                      // Determine status based on output
+                      let statusElement;
+                      if (isError) {
+                        // Show error status for actual errors
+                        statusElement = (
+                          <div className="flex items-center gap-1 text-destructive">
+                            <AlertCircle size={14} />
+                            <span>Error</span>
+                          </div>
+                        );
+                      } else if (output.id === "b0") {
+                        // Show classification status for B0
+                        statusElement = (
+                          <div className="flex items-center gap-1">
+                            <span className={`px-2 py-0.5 rounded text-xs ${
+                              classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
+                              classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
+                              classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
+                              "bg-red-500/20 text-red-700"
+                            }`}>
+                              {classification.class} - {classification.stress}
+                            </span>
+                          </div>
+                        );
+                      } else if (
+                        outputResult && 
+                        typeof outputResult === 'object' && 
+                        'warnings' in outputResult && 
+                        outputResult.warnings?.length > 0
+                      ) {
+                        // Show warning status for outputs with warnings but no errors
+                        statusElement = (
+                          <div className="flex items-center gap-1 text-yellow-600">
+                            <AlertTriangle size={14} />
+                            <span>Warning</span>
+                          </div>
+                        );
+                      } else {
+                        // Show OK status for successful outputs
+                        statusElement = (
+                          <div className="flex items-center gap-1 text-green-600">
+                            <CheckCircle size={14} />
+                            <span>OK</span>
+                          </div>
+                        );
+                      }
+                      
+                      return (
+                        <TableRow key={output.id} className="hover:bg-muted/10">
+                          <TableCell className="font-medium">
+                            {output.name}
+                            {output.description && (
+                              <div className="text-xs text-muted-foreground">{output.description}</div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {formatOutput(outputResult, output.id)}
+                            {output.unit && !isError && (
+                              <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">[{output.unit}]</span>
+                            )}
+                          </TableCell>
+                          <TableCell>{statusElement}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
 
               {expandedDatapoints.has(datapoint.id) && (
                 <Table>

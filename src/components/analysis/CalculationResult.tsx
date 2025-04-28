@@ -1,52 +1,88 @@
 import React from "react";
-import { calculateZincLossRate, formatZincLossRate } from "../../services/calculations";
+import { CalculationResult } from "../../types/calculations";
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from "lucide-react";
 
-interface CalculationResultProps {
-  values: Record<string, any>;
-  parameterIds: {
-    RESISTIVITY: string;
-    CHLORIDES: string;
-    SOIL_TYPE: string;
-    PH: string;
-    COATING_THICKNESS?: string;
-  };
+interface CalculationResultDisplayProps {
+  result: CalculationResult;
+  showMetadata?: boolean;
+  toggleMetadata?: () => void;
 }
 
-const CalculationResult: React.FC<CalculationResultProps> = ({ values, parameterIds }) => {
-  // Calculate results
-  const [zincLossRate, steelLossRate, zincLifetime, requiredReserve] = calculateZincLossRate(values, parameterIds);
+const CalculationResultDisplay: React.FC<CalculationResultDisplayProps> = ({ 
+  result, 
+  showMetadata = false,
+  toggleMetadata
+}) => {
+  if (!result.success) {
+    return (
+      <div>
+        <div className="text-destructive flex items-center gap-1">
+          <AlertCircle size={14} />
+          <span>Calculation failed</span>
+        </div>
+        {result.errors && result.errors.length > 0 && (
+          <div className="mt-1 text-xs text-destructive">
+            {result.errors.map((error, i) => (
+              <div key={i} className="flex items-start gap-1">
+                <AlertCircle size={12} className="mt-0.5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {result.metadata && toggleMetadata && (
+          <button 
+            className="mt-1 text-xs px-2 py-1 rounded hover:bg-muted/50"
+            onClick={toggleMetadata}
+          >
+            {showMetadata ? "Hide details" : "Show details"}
+          </button>
+        )}
+        {showMetadata && result.metadata && (
+          <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
+            {JSON.stringify(result.metadata, null, 2)}
+          </pre>
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 border border-input rounded-md bg-card">
-      <h3 className="text-lg font-medium mb-4">Calculation Results</h3>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Zinc Loss Rate:</p>
-          <p className="font-mono">{formatZincLossRate(zincLossRate)}</p>
+    <div>
+      {result.value !== undefined && (
+        <div className="font-medium">
+          {result.value}
+          {result.unit && <span className="ml-1 text-muted-foreground">{result.unit}</span>}
         </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Steel Loss Rate:</p>
-          <p className="font-mono">{steelLossRate} μm/year</p>
+      )}
+      {result.message && (
+        <div className="text-xs text-muted-foreground">{result.message}</div>
+      )}
+      {result.warnings && result.warnings.length > 0 && (
+        <div className="mt-1 text-xs text-yellow-500">
+          {result.warnings.map((warning, i) => (
+            <div key={i} className="flex items-start gap-1">
+              <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+              <span>{warning}</span>
+            </div>
+          ))}
         </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Zinc Lifetime:</p>
-          <p className="font-mono">{zincLifetime} years</p>
-        </div>
-
-        <div>
-          <p className="text-sm text-muted-foreground">Required Reserve:</p>
-          <p className="font-mono">{requiredReserve} mm</p>
-        </div>
-      </div>
-
-      <div className="mt-4 text-xs text-muted-foreground">
-        <p>Calculation based on AS/NZS 2041.1:2011 standard</p>
-      </div>
+      )}
+      {result.metadata && toggleMetadata && (
+        <button 
+          className="mt-1 text-xs px-2 py-1 rounded hover:bg-muted/50"
+          onClick={toggleMetadata}
+        >
+          {showMetadata ? "Hide details" : "Show details"}
+        </button>
+      )}
+      {showMetadata && result.metadata && (
+        <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
+          {JSON.stringify(result.metadata, null, 2)}
+        </pre>
+      )}
     </div>
   );
 };
 
-export default CalculationResult;
+export default CalculationResultDisplay;
