@@ -124,7 +124,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
         console.error("Error loading units:", err);
       }
     };
-    
+
     loadUnits();
   }, []);
 

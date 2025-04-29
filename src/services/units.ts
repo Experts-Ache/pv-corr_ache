@@ -8,11 +8,7 @@ import { showToast } from "../lib/toast";
 const generateUnitId = async (): Promise<string> => {
   try {
     // Get the highest existing unit_id
-    const { data, error } = await supabase
-      .from("units")
-      .select("unit_id")
-      .order("unit_id", { ascending: false })
-      .limit(1);
+    const { data, error } = await supabase.from("units").select("unit_id").order("unit_id", { ascending: false }).limit(1);
 
     if (error) throw error;
 
@@ -26,7 +22,7 @@ const generateUnitId = async (): Promise<string> => {
     }
 
     // Format the new unit_id with leading zeros
-    return `U${nextNumber.toString().padStart(5, '0')}`;
+    return `U${nextNumber.toString().padStart(5, "0")}`;
   } catch (err) {
     console.error("Error generating unit ID:", err);
     throw err;
@@ -35,13 +31,10 @@ const generateUnitId = async (): Promise<string> => {
 
 export const fetchUnits = async (): Promise<Unit[]> => {
   try {
-    const { data, error } = await supabase
-      .from("units")
-      .select("*")
-      .order("unit_id", { ascending: true });
+    const { data, error } = await supabase.from("units").select("*").order("unit_id", { ascending: true });
 
     if (error) throw error;
-    
+
     return data.map((unit) => toCase<Unit>(unit, "camelCase"));
   } catch (err) {
     console.error("Error fetching units:", err);
@@ -53,20 +46,20 @@ export const fetchUnits = async (): Promise<Unit[]> => {
 export const createUnit = async (unit: Omit<Unit, "id" | "unitId" | "createdAt" | "updatedAt">): Promise<Unit> => {
   try {
     const unitId = await generateUnitId();
-    
+
     const { data, error } = await supabase
       .from("units")
       .insert({
         unit_id: unitId,
         name: unit.name,
         symbol: unit.symbol,
-        description: unit.description || null
+        description: unit.description || null,
       })
       .select()
       .single();
 
     if (error) throw error;
-    
+
     showToast("Unit created successfully", "success");
     return toCase<Unit>(data, "camelCase");
   } catch (err) {
@@ -83,14 +76,14 @@ export const updateUnit = async (id: string, unit: Partial<Unit>): Promise<Unit>
       .update({
         name: unit.name,
         symbol: unit.symbol,
-        description: unit.description
+        description: unit.description,
       })
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
-    
+
     showToast("Unit updated successfully", "success");
     return toCase<Unit>(data, "camelCase");
   } catch (err) {
@@ -102,13 +95,10 @@ export const updateUnit = async (id: string, unit: Partial<Unit>): Promise<Unit>
 
 export const deleteUnit = async (id: string): Promise<void> => {
   try {
-    const { error } = await supabase
-      .from("units")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("units").delete().eq("id", id);
 
     if (error) throw error;
-    
+
     showToast("Unit deleted successfully", "success");
   } catch (err) {
     console.error("Error deleting unit:", err);

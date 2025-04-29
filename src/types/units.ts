@@ -22,20 +22,20 @@ export const UNIT_FIELDS: UnitField[] = [
     label: "Name",
     type: "text",
     required: true,
-    placeholder: "Enter unit name (e.g., Meter)"
+    placeholder: "Enter unit name (e.g., Meter)",
   },
   {
     id: "symbol",
     label: "Symbol",
     type: "text",
     required: true,
-    placeholder: "Enter unit symbol (e.g., m)"
+    placeholder: "Enter unit symbol (e.g., m)",
   },
   {
     id: "description",
     label: "Description",
     type: "text",
     required: false,
-    placeholder: "Enter optional description"
-  }
+    placeholder: "Enter optional description",
+  },
 ];

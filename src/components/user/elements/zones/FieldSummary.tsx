@@ -80,17 +80,11 @@ const FieldSummary: React.FC<FieldSummaryProps> = ({
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                          {field.zones?.length || 0}
-                        </span>
-                        <span className="text-xs text-muted-foreground text-left">{translation("zones")}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                        {field.zones?.length || 0} {translation("zones")}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                          {field.zones?.reduce((acc, zone) => acc + (zone.datapoints?.length || 0), 0) || 0}
-                        </span>
-                        <span className="text-xs text-muted-foreground text-left">{translation("datapoints")}</span>
+                      <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                        {field.zones?.reduce((acc, zone) => acc + (zone.datapoints?.length || 0), 0) || 0} {translation("datapoints")}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

@@ -6,6 +6,7 @@ import { Check, ArrowUpDown, CheckSquare, Square } from "lucide-react";
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { showToast } from "../../lib/toast";
+import { cn } from "@/lib/utils";
 
 interface AnalyseDataProps {
   currentTheme: Theme;
@@ -80,21 +81,11 @@ const AnalyseData: React.FC<AnalyseDataProps> = ({ currentTheme, currentLanguage
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            onClick={() => handleSort("name")}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-sm ${
-              sortField === "name" ? "text-accent-primary bg-theme" : "text-secondary"
-            }`}
-          >
+          <Button onClick={() => handleSort("name")} variant={sortField === "name" ? "default" : "outline"}>
             {t("name")}
             <ArrowUpDown size={12} />
           </Button>
-          <Button
-            onClick={() => handleSort("timestamp")}
-            className={`flex items-center gap-1 px-2 py-1 rounded text-sm ${
-              sortField === "timestamp" ? "text-accent-primary bg-theme" : "text-secondary"
-            }`}
-          >
+          <Button onClick={() => handleSort("timestamp")} variant={sortField === "timestamp" ? "default" : "outline"}>
             {t("date")}
 
             <ArrowUpDown size={12} />
@@ -108,9 +99,10 @@ const AnalyseData: React.FC<AnalyseDataProps> = ({ currentTheme, currentLanguage
             <Button
               key={datapoint.id}
               onClick={() => onToggleDatapoint(datapoint.id)}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
-                selectedDatapoints.includes(datapoint.id) ? "bg-accent-primary text-primary" : "text-primary-foreground hover:bg-theme"
-              }`}
+              variant="outline"
+              className={cn("border-primary hover:bg-primary", {
+                "bg-primary hover:bg-primary": selectedDatapoints.includes(datapoint.id),
+              })}
             >
               <div className="flex items-center justify-between">
                 <div>

@@ -46,11 +46,6 @@
   font-size: 1.25rem !important;
 }
 
-.project-overview-title {
-  color: hsl(142.1 76.2% 36.3%) !important;
-  font-weight: bold;
-}
-
 @layer base {
   :root {
     --radius: 0.5rem;

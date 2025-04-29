@@ -143,7 +143,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
     if (!output) return <span className="text-muted-foreground">No data</span>;
 
     // Handle calculation result format
-    if (typeof output === 'object' && 'success' in output) {
+    if (typeof output === "object" && "success" in output) {
       const result = output as CalculationResult;
 
       // Handle error results
@@ -158,9 +158,9 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               </div>
             )}
             {result.metadata && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="mt-1 text-xs h-6 px-2"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -171,18 +171,16 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               </Button>
             )}
             {expandedMetadata.has(outputId) && result.metadata && (
-              <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
-                {JSON.stringify(result.metadata, null, 2)}
-              </pre>
+              <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">{JSON.stringify(result.metadata, null, 2)}</pre>
             )}
           </div>
         );
       }
-      
+
       // Handle successful results
       return (
         <div className="font-medium">
-          {result.value !== undefined ? result.value : ''}
+          {result.value !== undefined ? result.value : ""}
           {result.message && <div className="text-xs font-normal text-muted-foreground">{result.message}</div>}
           {result.warnings && result.warnings.length > 0 && (
             <div className="text-xs font-normal text-yellow-500">
@@ -195,9 +193,9 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
             </div>
           )}
           {result.metadata && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="mt-1 text-xs h-6 px-2"
               onClick={(e) => {
                 e.stopPropagation();
@@ -208,34 +206,32 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
             </Button>
           )}
           {expandedMetadata.has(outputId) && result.metadata && (
-            <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
-              {JSON.stringify(result.metadata, null, 2)}
-            </pre>
+            <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">{JSON.stringify(result.metadata, null, 2)}</pre>
           )}
         </div>
       );
     }
-    
+
     // Handle legacy number format
-    if (typeof output === 'number') {
+    if (typeof output === "number") {
       return output.toFixed(2);
     }
-    
+
     // Handle array format (like zinc loss rate)
     if (Array.isArray(output)) {
       if (output.length >= 2) {
         return `${output[0]} ± ${output[1]}`;
       }
-      return output.join(', ');
+      return output.join(", ");
     }
-    
+
     // Handle object with value/sufficient properties (legacy format)
-    if (isObject(output) && 'value' in output) {
+    if (isObject(output) && "value" in output) {
       return (
         <div className="font-medium">
           {output.value}
-          {'sufficient' in output && (
-            <div className={`text-xs font-normal ${output.sufficient ? 'text-green-500' : 'text-destructive'}`}>
+          {"sufficient" in output && (
+            <div className={`text-xs font-normal ${output.sufficient ? "text-green-500" : "text-destructive"}`}>
               {output.sufficient ? (
                 <div className="flex items-center gap-1">
                   <CheckCircle size={12} />
@@ -249,13 +245,11 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               )}
             </div>
           )}
-          {'message' in output && (
-            <div className="text-xs font-normal text-muted-foreground">{output.message}</div>
-          )}
+          {"message" in output && <div className="text-xs font-normal text-muted-foreground">{output.message}</div>}
         </div>
       );
     }
-    
+
     // Default case: stringify the output
     return String(output);
   };
@@ -496,8 +490,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                 <div className="font-medium text-primary">
                   <span className="font-medium">{t("datapoints")}: </span> {datapoint.name}
                 </div>
-                <div>
-                </div>
+                <div></div>
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-muted-foreground">
                     <span className="font-medium">{t("Created")}:</span>{" "}
@@ -522,11 +515,11 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                   {Array.isArray(selectedNorm?.output_config) &&
                     selectedNorm.output_config.map((output: any) => {
                       if (!output || !output.id) return null;
-                      
+
                       // Get the output result
                       const outputResult = outputs[output.id];
                       const isError = outputs[`${output.id}_error`];
-                      
+
                       // Determine status based on output
                       let statusElement;
                       if (isError) {
@@ -541,20 +534,25 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                         // Show classification status for B0
                         statusElement = (
                           <div className="flex items-center gap-1">
-                            <span className={`px-2 py-0.5 rounded text-xs ${
-                              classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
-                              classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
-                              classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
-                              "bg-red-500/20 text-red-700"
-                            }`}>
+                            <span
+                              className={`px-2 py-0.5 rounded text-xs ${
+                                classification.class === "Ia"
+                                  ? "bg-green-500/20 text-green-700"
+                                  : classification.class === "Ib"
+                                    ? "bg-blue-500/20 text-blue-700"
+                                    : classification.class === "II"
+                                      ? "bg-yellow-500/20 text-yellow-700"
+                                      : "bg-red-500/20 text-red-700"
+                              }`}
+                            >
                               {classification.class} - {classification.stress}
                             </span>
                           </div>
                         );
                       } else if (
-                        outputResult && 
-                        typeof outputResult === 'object' && 
-                        'warnings' in outputResult && 
+                        outputResult &&
+                        typeof outputResult === "object" &&
+                        "warnings" in outputResult &&
                         outputResult.warnings?.length > 0
                       ) {
                         // Show warning status for outputs with warnings but no errors
@@ -573,14 +571,12 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           </div>
                         );
                       }
-                      
+
                       return (
                         <TableRow key={output.id} className="hover:bg-muted/10">
                           <TableCell className="font-medium">
                             {output.name}
-                            {output.description && (
-                              <div className="text-xs text-muted-foreground">{output.description}</div>
-                            )}
+                            {output.description && <div className="text-xs text-muted-foreground">{output.description}</div>}
                           </TableCell>
                           <TableCell>
                             {formatOutput(outputResult, output.id)}

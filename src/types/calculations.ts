@@ -16,7 +16,7 @@ export function createSuccessResult(
   unit?: string,
   message?: string,
   warnings?: string[],
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
 ): CalculationResult {
   return {
     value,
@@ -31,10 +31,7 @@ export function createSuccessResult(
 /**
  * Creates a failed calculation result
  */
-export function createErrorResult(
-  errors: string[],
-  metadata?: Record<string, any>
-): CalculationResult {
+export function createErrorResult(errors: string[], metadata?: Record<string, any>): CalculationResult {
   return {
     success: false,
     errors,
@@ -49,7 +46,7 @@ export function createWarningResult(
   value: number | string | boolean,
   unit?: string,
   warnings: string[],
-  metadata?: Record<string, any>
+  metadata?: Record<string, any>,
 ): CalculationResult {
   return {
     value,
@@ -64,9 +61,7 @@ export function createWarningResult(
  * Determines if a calculation result contains warnings but is not an error
  */
 export function isWarningResult(result: CalculationResult): boolean {
-  return result.success && 
-         result.warnings !== undefined && 
-         result.warnings.length > 0;
+  return result.success && result.warnings !== undefined && result.warnings.length > 0;
 }
 
 /**

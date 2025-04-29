@@ -285,10 +285,13 @@ const UnitsManagement: React.FC<UnitsManagementProps> = ({ currentTheme, onBack 
             ))}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsAddDialogOpen(false);
-              setFormValues({});
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddDialogOpen(false);
+                setFormValues({});
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleAddUnit}>Add Unit</Button>
@@ -321,11 +324,14 @@ const UnitsManagement: React.FC<UnitsManagementProps> = ({ currentTheme, onBack 
             ))}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsEditDialogOpen(false);
-              setSelectedUnit(null);
-              setFormValues({});
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditDialogOpen(false);
+                setSelectedUnit(null);
+                setFormValues({});
+              }}
+            >
               Cancel
             </Button>
             <Button onClick={handleEditUnit}>Save Changes</Button>
@@ -344,13 +350,18 @@ const UnitsManagement: React.FC<UnitsManagementProps> = ({ currentTheme, onBack 
             <p className="text-sm text-muted-foreground mt-2">This action cannot be undone.</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => {
-              setIsDeleteDialogOpen(false);
-              setSelectedUnit(null);
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsDeleteDialogOpen(false);
+                setSelectedUnit(null);
+              }}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDeleteUnit}>Delete</Button>
+            <Button variant="destructive" onClick={handleDeleteUnit}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
