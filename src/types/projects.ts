@@ -24,4 +24,19 @@ export interface Datapoint {
  */
 export type Project = any;
 export type Gate = any;
-export type Field = any;
+export interface Field {
+  id: string;
+  hiddenId: string;
+  name: string;
+  latitude?: string;
+  longitude?: string;
+  pv_size?: string | number;
+  has_fence?: string | boolean;
+  has_earthing?: boolean;
+  earthing_connection_type?: 'field' | 'converter_station' | 'none';
+  connected_to_field_id?: string;
+  converter_station_id?: string;
+  neighboringStructureIds?: string[];
+  gates: Gate[];
+  zones: Zone[];
+}

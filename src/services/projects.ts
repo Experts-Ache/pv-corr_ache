@@ -348,6 +348,7 @@ export const fetchProjects = async (customerId?: string): Promise<Project[]> => 
             latitude: field.latitude,
             longitude: field.longitude,
             has_fence: field.has_fence,
+            pv_size: field.pv_size,
             gates: (Array.isArray(field.gates) ? field.gates : [])
               .filter((gate) => gate)
               .map((gate) => ({

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Theme } from "../../../../types/theme";
 import { Project } from "../../../../types/projects";
 import { Person } from "../../../../types/people";
@@ -49,6 +49,30 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
   });
   const [error, setError] = useState<string | null>(null);
   const [sortedPeople, setSortedPeople] = useState<Person[]>([]);
+
+  // Calculate total PV size across all fields
+  const totalPvSize = useMemo(() => {
+    if (!project.fields || !Array.isArray(project.fields)) {
+      return 0;
+    }
+    
+    return project.fields.reduce((total, field) => {
+      let fieldPvSize = 0;
+      
+      if (field.pv_size !== undefined && field.pv_size !== null) {
+        if (typeof field.pv_size === 'string') {
+          const parsed = parseFloat(field.pv_size);
+          if (!isNaN(parsed)) {
+            fieldPvSize = parsed;
+          }
+        } else if (typeof field.pv_size === 'number') {
+          fieldPvSize = field.pv_size;
+        }
+      }
+      
+      return total + fieldPvSize;
+    }, 0);
+  }, [project.fields]);
 
   // Sort people alphabetically
   useEffect(() => {
@@ -293,6 +317,17 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                     </div>
                   ) : (
                     <span className="text-muted-foreground">{translation("general.location_not_set")}</span>
+                  )}
+                </TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell className="p-2 w-1/6">{translation("project.total_pv_size") || "Total PV Size"}</TableCell>
+                <TableCell className="p-2">
+                  <span className="font-medium">{totalPvSize.toFixed(2)} MW</span>
+                  {project.fields && project.fields.length > 0 && (
+                    <span className="text-xs text-muted-foreground ml-2">
+                      (from {project.fields.length} {project.fields.length === 1 ? "field" : "fields"})
+                    </span>
                   )}
                 </TableCell>
               </TableRow>

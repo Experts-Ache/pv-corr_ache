@@ -60,7 +60,7 @@ const Zones: React.FC<ZonesProps> = ({
   // Safely find manager and company with error handling
   const manager = (() => {
     try {
-      if (!people || !Array.isArray(people) || !selectedProject.managerId) return null;
+      if (!selectedProject || !people || !Array.isArray(people) || !selectedProject.managerId) return null;
       return people.find((person) => person && person.id === selectedProject.managerId) || null;
     } catch (err) {
       console.error("Error finding manager:", err);
@@ -70,7 +70,7 @@ const Zones: React.FC<ZonesProps> = ({
 
   const company = (() => {
     try {
-      if (!companies || !Array.isArray(companies) || !selectedProject.companyId) return null;
+      if (!selectedProject || !companies || !Array.isArray(companies) || !selectedProject.companyId) return null;
       return companies.find((company) => company && company.id === selectedProject.companyId) || null;
     } catch (err) {
       console.error("Error finding company:", err);
@@ -96,7 +96,7 @@ const Zones: React.FC<ZonesProps> = ({
         isExpanded={showProjectSummary}
         onToggle={() => setShowProjectSummary(!showProjectSummary)}
         onProjectsChange={onProjectsChange}
-        selectedCustomerId={selectedProject.companyId}
+        selectedCustomerId={selectedProject?.companyId || null}
       />
 
       <FieldSummary

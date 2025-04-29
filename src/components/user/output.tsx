@@ -491,7 +491,7 @@ const Output: React.FC<OutputProps> = ({ currentTheme, currentLanguage, projects
                               {t("analysis.total_rating")}: {version.total_rating}
                             </div>
                             <button
-                              onClick={() => navigate(`?view=output&reportId=${report.id}&version=${version.version_number}`)}
+                              onClick={() => handleViewReport(report.id)}
                               className="p-1 rounded hover:bg-opacity-80 text-secondary"
                               title={t("output.view_version")}
                             >

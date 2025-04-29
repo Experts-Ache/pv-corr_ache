@@ -646,9 +646,7 @@ const DashboardLayout = () => {
                 <ButtonSection
                   view={view}
                   match="output"
-                  onClick={() => {
-                    showToast(t("output.view.disabled"), "info");
-                  }}
+                  onClick={() => setView("output")}
                 >
                   <FileText size={18} />
                   <span>{t("nav.output")}</span>
@@ -656,9 +654,7 @@ const DashboardLayout = () => {
                 <ButtonSection
                   view={view}
                   match="reports"
-                  onClick={() => {
-                    showToast(t("reports.view.disabled"), "info");
-                  }}
+                  onClick={() => setView("reports")}
                 >
                   <ClipboardList size={18} />
                   <span>{t("reports.title")}</span>

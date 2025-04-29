@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Theme } from "../../types/theme";
 import { Language, useTranslation } from "../../types/language";
-import { ChevronDown, ChevronRight, AlertTriangle, AlertCircle, CheckCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, AlertTriangle, AlertCircle, CheckCircle, Info } from "lucide-react";
 import { Datapoint } from "../../types/projects";
 import { supabase } from "../../lib/supabase";
 import { showToast } from "../../lib/toast";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Button } from "../ui/button";
 import { isObject } from "@/utils/cases";
-import { CalculationResult, createErrorResult } from "@/types/calculations";
+import { CalculationResult, createErrorResult, createSuccessResult } from "@/types/calculations";
+import { formatOutput as formatOutputUtil } from "../../utils/formatOutput";
 
 interface AnalyseResultProps {
   currentTheme: Theme;
@@ -27,6 +28,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
   project,
   zone,
 }) => {
+  // Move all hooks to the top level and ensure they're called unconditionally
   const t = useTranslation(currentLanguage);
   const [expandedMetadata, setExpandedMetadata] = useState<Set<string>>(new Set());
   const [initializing, setInitializing] = useState(true);
@@ -37,84 +39,10 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [parameterMap, setParameterMap] = useState<Record<string, any>>({});
   const [navigating, setNavigating] = useState(false);
+  const [calculationResults, setCalculationResults] = useState<Record<string, CalculationResult | any>>({});
 
-  useEffect(() => {
-    try {
-      // Safety check for selectedNorm
-      if (!selectedNorm) {
-        setError("No norm selected. Please select a valid norm.");
-        setLoading(false);
-        return;
-      }
-
-      // Validate selectedNorm structure
-      if (!selectedNorm.parameters || !Array.isArray(selectedNorm.parameters)) {
-        setError("Invalid norm structure. The norm parameters are missing or invalid.");
-        setLoading(false);
-        return;
-      }
-
-      // Create set of parameter IDs from norm
-      const paramMap = new Map();
-      selectedNorm.parameters.forEach((p: any) => {
-        paramMap.set(p.parameter_id, p.parameter_code);
-      });
-      setNormParameters(paramMap);
-
-      // Initialize with a short delay to ensure all data is loaded
-      setTimeout(() => {
-        setInitializing(false);
-      }, 100);
-    } catch (err) {
-      console.error("Error initializing norm parameters:", err);
-      setError("Failed to initialize norm parameters");
-      setLoading(false);
-    }
-  }, [selectedNorm]);
-
-  useEffect(() => {
-    const loadParameters = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("parameters")
-          .select(
-            `
-            id,
-            name,
-            short_name,
-            unit,
-            rating_logic_code
-          `,
-          )
-          .order("created_at", { ascending: true });
-
-        if (error) throw error;
-
-        if (!data || !Array.isArray(data)) {
-          throw new Error("Invalid parameters data received");
-        }
-
-        setParameters(data);
-
-        // Create parameter map for easier lookup
-        const map = data.reduce((acc: Record<string, any>, param: any) => {
-          acc[param.id] = param;
-          return acc;
-        }, {});
-        setParameterMap(map);
-      } catch (err) {
-        console.error("Error loading parameters:", err);
-        setError("Failed to load parameters: " + (err instanceof Error ? err.message : String(err)));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadParameters();
-  }, []);
-
-  const toggleDatapoint = (id: string) => {
+  // Memoize toggle functions
+  const toggleDatapoint = useCallback((id: string) => {
     setExpandedDatapoints((prev) => {
       const next = new Set(prev);
       if (next.has(id)) {
@@ -124,9 +52,9 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       }
       return next;
     });
-  };
+  }, []);
 
-  const toggleMetadata = (outputId: string) => {
+  const toggleMetadata = useCallback((outputId: string) => {
     setExpandedMetadata((prev) => {
       const next = new Set(prev);
       if (next.has(outputId)) {
@@ -136,17 +64,15 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       }
       return next;
     });
-  };
+  }, []);
 
-  const formatOutput = (output: any, outputId: string): React.ReactNode => {
-    // Handle null or undefined output
+  // Memoize formatOutput function to prevent unnecessary re-renders
+  const formatOutput = useCallback((output: any, outputId: string): React.ReactNode => {
     if (!output) return <span className="text-muted-foreground">No data</span>;
 
-    // Handle calculation result format
     if (typeof output === 'object' && 'success' in output) {
       const result = output as CalculationResult;
 
-      // Handle error results
       if (!result.success) {
         return (
           <div className="text-destructive">
@@ -179,7 +105,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
         );
       }
       
-      // Handle successful results
       return (
         <div className="font-medium">
           {result.value !== undefined ? result.value : ''}
@@ -216,12 +141,10 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       );
     }
     
-    // Handle legacy number format
     if (typeof output === 'number') {
       return output.toFixed(2);
     }
     
-    // Handle array format (like zinc loss rate)
     if (Array.isArray(output)) {
       if (output.length >= 2) {
         return `${output[0]} ± ${output[1]}`;
@@ -229,7 +152,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       return output.join(', ');
     }
     
-    // Handle object with value/sufficient properties (legacy format)
     if (isObject(output) && 'value' in output) {
       return (
         <div className="font-medium">
@@ -256,144 +178,179 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
       );
     }
     
-    // Default case: stringify the output
     return String(output);
-  };
+  }, [expandedMetadata, toggleMetadata]);
 
-  // Show loading state while initializing or loading parameters
-  if (loading || initializing) {
-    return <div className="text-center p-4 text-secondary">{t("analysis.loading")}</div>;
-  }
-
-  // Show error if there's an issue
-  if (error) {
-    return <div className="p-4 rounded text-accent-primary border-accent-primary border-solid bg-surface">{error}</div>;
-  }
-
-  // Safety check for selectedNorm
-  if (!selectedNorm) {
-    return (
-      <div className="p-4 rounded text-accent-primary border-accent-primary border-solid bg-surface">{t("analysis.no_norm_selected")}</div>
-    );
-  }
-
-  // Calculate results for each datapoint
-  const results = selectedDatapoints.map((datapoint) => {
-    // Calculate ratings for each parameter
-    const parameterRatings: Record<string, { value: string; rating: number; unit?: string }> = {};
-
-    if (!datapoint.values) {
-      console.warn("Datapoint has no values:", datapoint);
-      return { datapoint, parameterRatings: {}, outputs: {}, classification: { class: "N/A", stress: "No data" } };
-    }
-
-    // Process each parameter in the datapoint values
-    Object.entries(datapoint.values || {})
-      .filter(([paramId]) => normParameters.has(paramId))
-      .forEach(([paramId, value]) => {
-        const parameter = parameterMap[paramId];
-        if (!parameter) {
-          console.warn(`Parameter ${paramId} not found in parameter map`);
+  // Initialize norm parameters
+  useEffect(() => {
+    const initNormParameters = () => {
+      try {
+        if (!selectedNorm) {
+          setError("No norm selected. Please select a valid norm.");
+          setLoading(false);
           return;
         }
 
-        const paramCode = normParameters.get(paramId) || parameter.shortName || parameter.name;
-
-        // Execute rating logic code if available
-        let rating = 0;
-        if (parameter.rating_logic_code) {
-          try {
-            // Create a function from the rating logic code
-            const calculateRating = new Function("value", parameter.rating_logic_code);
-            rating = calculateRating(value);
-          } catch (err) {
-            console.error(`Error calculating rating for parameter ${parameter.shortName || parameter.name}:`, err);
-          }
-        } else {
-          // If no rating logic code, use the datapoint's rating if available
-          rating = (datapoint.ratings && datapoint.ratings[paramId]) || 0;
+        if (!selectedNorm.parameters || !Array.isArray(selectedNorm.parameters)) {
+          setError("Invalid norm structure. The norm parameters are missing or invalid.");
+          setLoading(false);
+          return;
         }
 
-        parameterRatings[paramCode] = {
-          value,
-          rating,
-          unit: parameter.unit,
-        };
-      });
+        const paramMap = new Map();
+        selectedNorm.parameters.forEach((p: any) => {
+          paramMap.set(p.parameter_id, p.parameter_code);
+        });
+        setNormParameters(paramMap);
 
-    // Initialize outputs object
-    const outputs: Record<string, number> = {};
+        setTimeout(() => {
+          setInitializing(false);
+        }, 100);
+      } catch (err) {
+        console.error("Error initializing norm parameters:", err);
+        setError("Failed to initialize norm parameters");
+        setLoading(false);
+      }
+    };
 
-    // Get all ratings for parameters Z1-Z15
-    const zRatings: Record<number, number> = {};
+    initNormParameters();
+  }, [selectedNorm]);
 
-    // Process each parameter rating
-    if (datapoint.ratings) {
-      Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
-        // Get parameter info from map
-        const param = parameterMap[paramId];
-        if (!param) return;
+  // Load parameters
+  useEffect(() => {
+    const loadParameters = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from("parameters")
+          .select(
+            `
+            id,
+            name,
+            short_name,
+            unit,
+            rating_logic_code
+          `,
+          )
+          .order("created_at", { ascending: true });
 
-        const paramCode = normParameters.get(paramId) || param.shortName || param.name;
-        if (!paramCode) return;
+        if (error) throw error;
 
-        // Match Z1-Z15 pattern
-        const match = paramCode.match(/^Z(\d+)$/i);
-        if (!match) return;
-
-        const num = parseInt(match[1]);
-        if (num >= 1 && num <= 15) {
-          zRatings[num] = rating;
+        if (!data || !Array.isArray(data)) {
+          throw new Error("Invalid parameters data received");
         }
-      });
+
+        setParameters(data);
+        const map = data.reduce((acc: Record<string, any>, param: any) => {
+          acc[param.id] = param;
+          return acc;
+        }, {});
+        setParameterMap(map);
+      } catch (err) {
+        console.error("Error loading parameters:", err);
+        setError("Failed to load parameters: " + (err instanceof Error ? err.message : String(err)));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadParameters();
+  }, []);
+
+  // Calculate results
+  useEffect(() => {    
+    if (!selectedDatapoints?.length || !selectedNorm || !parameterMap || Object.keys(parameterMap).length === 0) {
+      return;
     }
 
-    // Process each output formula from the norm configuration
-    if (selectedNorm?.output_config && Array.isArray(selectedNorm.output_config)) {
-      console.log("Processing output config:", selectedNorm.output_config);
-      selectedNorm.output_config.forEach((output: any) => {
-        if (output && output.id && output.formula) {
-          try {
-            // Create a context with parameter values and ratings
-            const context: Record<string, any> = {
-              values: {},
-              ratings: {},
-            };
+    const newCalculationResults: Record<string, any> = {};
 
-            // Add all parameter values to the context
-            Object.entries(datapoint.values || {}).forEach(([paramId, value]) => {
-              const param = parameterMap[paramId];
-              if (param?.short_name || param?.name) {
-                // Convert string numbers to actual numbers
-                let numValue = value;
-                if (typeof value === "string" && !isNaN(parseFloat(value))) {
-                  numValue = parseFloat(value);
-                }
-                console.log(`Setting context value ${param.short_name || param.name} = ${numValue}`);
-                context.values[param.id] = numValue;
-              }
-            });
+    for (const datapoint of selectedDatapoints) {
+      if (!datapoint || !datapoint.id) continue;
+      
+      const zRatings: Record<number, number> = {};
+      
+      if (datapoint.ratings) {
+        Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
+          const param = parameterMap[paramId];
+          if (!param) return;
 
-            // Add all parameter ratings to the context
-            if (datapoint.ratings) {
-              Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
+          const paramCode = normParameters.get(paramId) || param.short_name || param.name;
+          if (!paramCode) return;
+
+          const match = paramCode.match(/^Z(\d+)$/i);
+          if (!match) return;
+
+          const num = parseInt(match[1]);
+          if (num >= 1 && num <= 15) {
+            zRatings[num] = rating;
+          }
+        });
+      }
+      
+      const b0Value = Object.entries(zRatings).reduce((sum, [num, rating]) => {
+        if (parseInt(num) <= 10) {
+          return sum + rating;
+        }
+        return sum;
+      }, 0);
+      
+      const b1Value = b0Value + Object.entries(zRatings).reduce((sum, [num, rating]) => {
+        if (parseInt(num) > 10 && parseInt(num) <= 15) {
+          return sum + rating;
+        }
+        return sum;
+      }, 0);
+      
+      newCalculationResults[`${datapoint.id}_b0`] = createSuccessResult(
+        b0Value,
+        "",
+        "Sum of Z1-Z10 parameters",
+        undefined,
+        { zRatings }
+      );
+      
+      newCalculationResults[`${datapoint.id}_b1`] = createSuccessResult(
+        b1Value,
+        "",
+        "Sum of all Z parameters (Z1-Z15)",
+        undefined,
+        { zRatings }
+      );
+      
+      if (selectedNorm?.output_config && Array.isArray(selectedNorm.output_config)) {
+        for (const output of selectedNorm.output_config) {
+          if (output && output.id && output.formula) {
+            try {
+              const context: Record<string, any> = {
+                values: {},
+                ratings: {},
+              };
+
+              Object.entries(datapoint.values || {}).forEach(([paramId, value]) => {
                 const param = parameterMap[paramId];
-                if (param?.short_name) {
-                  console.log(`Setting context rating ${param.short_name} = ${rating}`);
-                  context.ratings[param.short_name] = rating;
+                if (param?.short_name || param?.name) {
+                  let numValue = value;
+                  if (typeof value === "string" && !isNaN(parseFloat(value))) {
+                    numValue = parseFloat(value);
+                  }
+                  context.values[param.id] = numValue;
                 }
               });
-            }
 
-            // Add Z1-Z15 ratings directly to the context for easier access
-            Object.entries(zRatings).forEach(([num, rating]) => {
-              console.log(`Setting Z${num} = ${rating}`);
-              context[`Z${num}`] = rating;
-            });
+              Object.entries(zRatings).forEach(([num, rating]) => {
+                context[`Z${num}`] = rating;
+              });
+              
+              if (datapoint.ratings) {
+                Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
+                  const param = parameterMap[paramId];
+                  if (param?.short_name) {
+                    context.ratings[param.short_name] = rating;
+                  }
+                });
+              }
 
-            // Create a function from the formula and execute it with the context
-            try {
-              // Wrap the formula in a return statement if it doesn't have one
               let formula = output.formula.trim();
               if (!formula.startsWith("return ") && !formula.includes("return ")) {
                 formula = `return ${formula}`;
@@ -402,87 +359,124 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               try {
                 const calculateOutput = new Function("values", "ratings", formula);
                 const result = calculateOutput(context.values, context.ratings);
-                console.log(`Executing formula for output ${output.id}:`, formula);
-                console.log("Context values:", context.values);
-                console.log("Context ratings:", context.ratings);
-                console.log("Result:", result);
-
-                if (isObject(result)) {
-                  outputs[`${output.id}_error`] = result;
-                }
-
-                // Handle array results (like zinc loss rate)
-                if (Array.isArray(result)) {
-                  // Store the first value for display purposes
-                  outputs[output.id] = result[0];
-                  // Store the full array for detailed calculations
-                  outputs[`${output.id}_full`] = result;
+                
+                if (isObject(result) && 'success' in result) {
+                  newCalculationResults[`${datapoint.id}_${output.id}`] = result;
                 } else {
-                  outputs[output.id] = result;
+                  newCalculationResults[`${datapoint.id}_${output.id}`] = createSuccessResult(
+                    result,
+                    output.unit,
+                    undefined,
+                    undefined,
+                    { formula, context }
+                  );
                 }
               } catch (calcError) {
                 console.error(`Error executing calculation for ${output.id}:`, calcError);
-                outputs[output.id] = 0;
+                newCalculationResults[`${datapoint.id}_${output.id}`] = createErrorResult(
+                  [`Calculation error: ${calcError instanceof Error ? calcError.message : String(calcError)}`],
+                  { formula, context, error: calcError }
+                );
               }
-              console.log(`Output ${output.id} = ${outputs[output.id]}`);
             } catch (err) {
-              console.error(`Error executing formula for output ${output.id}:`, err);
-              outputs[output.id] = 0; // Default to 0 on error
+              console.error(`Error calculating output ${output.id}:`, err);
+              newCalculationResults[`${datapoint.id}_${output.id}`] = createErrorResult([
+                `Calculation error: ${err instanceof Error ? err.message : String(err)}`
+              ],
+                { error: err }
+              );
             }
-          } catch (err) {
-            console.error(`Error calculating output ${output.id}:`, err);
-            outputs[output.id] = 0; // Default to 0 on error
           }
         }
-      });
-    } else {
-      // Fallback to default calculations if no output_config is available
-      console.log("Using fallback calculations");
-      // Calculate B0 (sum of Z1-Z10)
-      outputs.b0 = Object.entries(zRatings).reduce((sum, [num, rating]) => {
-        if (parseInt(num) <= 10) {
-          console.log(`Adding Z${num} (${rating}) to B0`);
-          return sum + rating;
-        }
-        return sum;
-      }, 0);
-      console.log("Calculated B0:", outputs.b0);
-
-      // Calculate B1 (B0 + sum of Z11-Z15)
-      outputs.b1 =
-        outputs.b0 +
-        Object.entries(zRatings).reduce((sum, [num, rating]) => {
-          if (parseInt(num) > 10 && parseInt(num) <= 15) {
-            console.log(`Adding Z${num} (${rating}) to B1`);
-            return sum + rating;
-          }
-          return sum;
-        }, 0);
-      console.log("Calculated B1:", outputs.b1);
+      }
     }
 
-    // Get B0 value for classification
-    const b0 = outputs.b0 || 0;
-    console.log("Final B0 value for classification:", b0);
+    setCalculationResults(newCalculationResults);
+  }, [selectedDatapoints, selectedNorm, parameterMap, normParameters]);
 
-    // Classify results
-    const classification =
-      b0 >= 0
-        ? { class: "Ia", stress: t("analysis.stress.very_low") }
-        : b0 >= -4
-          ? { class: "Ib", stress: t("analysis.stress.low") }
-          : b0 >= -10
-            ? { class: "II", stress: t("analysis.stress.medium") }
-            : { class: "III", stress: t("analysis.stress.high") };
-    console.log("Classification:", classification);
+  // Memoize results calculation
+  const results = useMemo(() => {
+    if (!selectedDatapoints || !calculationResults || !parameterMap) {
+      return [];
+    }
 
-    return {
-      datapoint,
-      parameterRatings,
-      outputs,
-      classification,
-    };
-  });
+    return selectedDatapoints.map((datapoint) => {
+      const parameterRatings: Record<string, { value: string; rating: number; unit?: string }> = {};
+
+      if (!datapoint.values) {
+        console.warn("Datapoint has no values:", datapoint);
+        return { datapoint, parameterRatings: {}, outputs: {}, classification: { class: "N/A", stress: "No data" } };
+      }
+
+      Object.entries(datapoint.values || {})
+        .filter(([paramId]) => normParameters.has(paramId))
+        .forEach(([paramId, value]) => {
+          const parameter = parameterMap[paramId];
+          if (!parameter) {
+            console.warn(`Parameter ${paramId} not found in parameter map`);
+            return;
+          }
+
+          const paramCode = normParameters.get(paramId) || parameter.shortName || parameter.name;
+
+          let rating = 0;
+          if (parameter.rating_logic_code) {
+            try {
+              const calculateRating = new Function("value", parameter.rating_logic_code);
+              rating = calculateRating(value);
+            } catch (err) {
+              console.error(`Error calculating rating for parameter ${parameter.shortName || parameter.name}:`, err);
+            }
+          } else {
+            rating = (datapoint.ratings && datapoint.ratings[paramId]) || 0;
+          }
+
+          parameterRatings[paramCode] = {
+            value,
+            rating,
+            unit: parameter.unit,
+          };
+        });
+
+      const b0Output = calculationResults[`${datapoint.id}_b0`];
+      const b0 = b0Output?.value ?? 0;
+
+      const classification =
+        b0 >= 0
+          ? { class: "Ia", stress: t("analysis.stress.very_low") }
+          : b0 >= -4
+            ? { class: "Ib", stress: t("analysis.stress.low") }
+            : b0 >= -10
+              ? { class: "II", stress: t("analysis.stress.medium") }
+              : { class: "III", stress: t("analysis.stress.high") };
+
+      return {
+        datapoint,
+        parameterRatings,
+        outputs: calculationResults,
+        classification,
+      };
+    });
+  }, [selectedDatapoints, calculationResults, parameterMap, normParameters, t]);
+
+  if (loading || initializing) {
+    return <div className="text-center p-4 text-secondary">{t("analysis.loading")}</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 rounded text-destructive border border-destructive bg-destructive/10">
+        <div className="flex items-center gap-2">
+          <AlertCircle size={16} />
+          <span>{error}</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedNorm) {
+    return <div className="p-4 rounded border border-input bg-card">{t("analysis.no_norm_selected")}</div>;
+  }
 
   return (
     <div className="space-y-4">
@@ -492,11 +486,12 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
         {results.map(({ datapoint, parameterRatings, outputs, classification }) => (
           <div key={datapoint.id} className="p-4 rounded-lg border border-theme">
             <div className="flex flex-col gap-1 mb-3">
-              <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleDatapoint(datapoint.id)}>
+              <div 
+                className="flex items-center justify-between cursor-pointer" 
+                onClick={() => toggleDatapoint(datapoint.id)}
+              >
                 <div className="font-medium text-primary">
                   <span className="font-medium">{t("datapoints")}: </span> {datapoint.name}
-                </div>
-                <div>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-muted-foreground">
@@ -521,16 +516,12 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                 <TableBody>
                   {Array.isArray(selectedNorm?.output_config) &&
                     selectedNorm.output_config.map((output: any) => {
-                      if (!output || !output.id) return null;
+                      if (!output?.id) return null;
                       
-                      // Get the output result
-                      const outputResult = outputs[output.id];
-                      const isError = outputs[`${output.id}_error`];
+                      const outputResult = outputs[`${datapoint.id}_${output.id}`];
                       
-                      // Determine status based on output
                       let statusElement;
-                      if (isError) {
-                        // Show error status for actual errors
+                      if (outputResult && !outputResult.success) {
                         statusElement = (
                           <div className="flex items-center gap-1 text-destructive">
                             <AlertCircle size={14} />
@@ -538,7 +529,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           </div>
                         );
                       } else if (output.id === "b0") {
-                        // Show classification status for B0
                         statusElement = (
                           <div className="flex items-center gap-1">
                             <span className={`px-2 py-0.5 rounded text-xs ${
@@ -557,7 +547,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                         'warnings' in outputResult && 
                         outputResult.warnings?.length > 0
                       ) {
-                        // Show warning status for outputs with warnings but no errors
                         statusElement = (
                           <div className="flex items-center gap-1 text-yellow-600">
                             <AlertTriangle size={14} />
@@ -565,7 +554,6 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           </div>
                         );
                       } else {
-                        // Show OK status for successful outputs
                         statusElement = (
                           <div className="flex items-center gap-1 text-green-600">
                             <CheckCircle size={14} />
@@ -576,17 +564,23 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                       
                       return (
                         <TableRow key={output.id} className="hover:bg-muted/10">
-                          <TableCell className="font-medium">
+                          <TableCell className="font-medium whitespace-nowrap">
                             {output.name}
                             {output.description && (
                               <div className="text-xs text-muted-foreground">{output.description}</div>
                             )}
                           </TableCell>
                           <TableCell>
-                            {formatOutput(outputResult, output.id)}
-                            {output.unit && !isError && (
-                              <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">[{output.unit}]</span>
-                            )}
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1">
+                                {formatOutput(outputResult, `${datapoint.id}_${output.id}`)}
+                                {output.unit && outputResult?.success !== false && (
+                                  <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">
+                                    [{output.unit}]
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </TableCell>
                           <TableCell>{statusElement}</TableCell>
                         </TableRow>
@@ -617,6 +611,57 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           <TableCell className="p-2">{rating}</TableCell>
                         </TableRow>
                       ))}
+                  </TableBody>
+                </Table>
+              )}
+              
+              {(!selectedNorm?.output_config || !Array.isArray(selectedNorm.output_config) || selectedNorm.output_config.length === 0) && (
+                <Table>
+                  <TableCaption>{t("analysis.calculation_results")}</TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{t("analysis.parameter")}</TableHead>
+                      <TableHead>{t("analysis.value")}</TableHead>
+                      <TableHead>{t("analysis.status")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        B0
+                        <div className="text-xs text-muted-foreground">Sum of Z1-Z10 parameters</div>
+                      </TableCell>
+                      <TableCell>
+                        {formatOutput(outputs[`${datapoint.id}_b0`], `${datapoint.id}_b0`)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <span className={`px-2 py-0.5 rounded text-xs ${
+                            classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
+                            classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
+                            classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
+                            "bg-red-500/20 text-red-700"
+                          }`}>
+                            {classification.class} - {classification.stress}
+                          </span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell className="font-medium">
+                        B1
+                        <div className="text-xs text-muted-foreground">Sum of all Z parameters (Z1-Z15)</div>
+                      </TableCell>
+                      <TableCell>
+                        {formatOutput(outputs[`${datapoint.id}_b1`], `${datapoint.id}_b1`)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-green-600">
+                          <CheckCircle size={14} />
+                          <span>OK</span>
+                        </div>
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               )}
