@@ -567,7 +567,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="flex-1">
-                                {formatOutput(outputResult, `${datapoint.id}_${output.id}`)}
+                                {formatOutput(calculationResults[`${datapoint.id}_${output.id}`], `${datapoint.id}_${output.id}`)}
                                 {output.unit && outputResult?.success !== false && (
                                   <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">[{output.unit}]</span>
                                 )}

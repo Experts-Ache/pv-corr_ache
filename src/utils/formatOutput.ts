@@ -10,6 +10,16 @@ export const formatOutput = (output: any): string => {
   // Handle null or undefined output
   if (!output) return "No data";
 
+  // Targeted logging: Check type and value only for calculation results
+  if (typeof output === "object" && "success" in output) {
+    console.log("Formatting calculation result:", {
+      type: typeof output,
+      value: output.value,
+      success: output.success,
+      fullObject: output
+    });
+  }
+
   // Handle calculation result format
   if (typeof output === "object" && "success" in output) {
     const result = output as CalculationResult;
