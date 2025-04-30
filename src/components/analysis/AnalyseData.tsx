@@ -81,11 +81,23 @@ const AnalyseData: React.FC<AnalyseDataProps> = ({ currentTheme, currentLanguage
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => handleSort("name")} variant={sortField === "name" ? "default" : "outline"}>
+          <Button
+            onClick={() => handleSort("name")}
+            variant={sortField === "name" ? "default" : "outline"}
+            className={cn("border-primary hover:bg-primary", {
+              "bg-primary hover:bg-primary": sortField === "name",
+            })}
+          >
             {t("name")}
             <ArrowUpDown size={12} />
           </Button>
-          <Button onClick={() => handleSort("timestamp")} variant={sortField === "timestamp" ? "default" : "outline"}>
+          <Button
+            onClick={() => handleSort("timestamp")}
+            variant={sortField === "timestamp" ? "default" : "outline"}
+            className={cn("border-primary hover:bg-primary", {
+              "bg-primary hover:bg-primary": sortField === "timestamp",
+            })}
+          >
             {t("date")}
 
             <ArrowUpDown size={12} />

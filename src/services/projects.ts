@@ -274,6 +274,8 @@ export const deleteProject = async (projectId: string) => {
 };
 
 export const fetchProjects = async (customerId?: string): Promise<Project[]> => {
+  console.log("fetchProjects called with customerId:", customerId); // Log when the function is called
+
   try {
     // Get current user
     const {
@@ -287,7 +289,7 @@ export const fetchProjects = async (customerId?: string): Promise<Project[]> => 
         `
         *,
         fields (
-          id, hidden_id, name, latitude, longitude, has_fence,
+          id, hidden_id, name, latitude, longitude, has_fence, pv_size,connected_to_field_id,
           gates (*),
           zones (
             id, hidden_id, name, latitude, longitude, substructure_id, foundation_id,
@@ -348,6 +350,9 @@ export const fetchProjects = async (customerId?: string): Promise<Project[]> => 
             latitude: field.latitude,
             longitude: field.longitude,
             has_fence: field.has_fence,
+            pv_size: field.pv_size,
+            connectedToFieldId: field.connected_to_field_id,
+            neighboringStructureIds: Array.isArray(field.neighboring_structure_ids) ? field.neighboring_structure_ids : [],
             gates: (Array.isArray(field.gates) ? field.gates : [])
               .filter((gate) => gate)
               .map((gate) => ({

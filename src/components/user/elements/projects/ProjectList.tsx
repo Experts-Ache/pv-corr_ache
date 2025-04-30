@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Theme } from "../../../../types/theme";
 import { Project } from "../../../../types/projects";
 import { ChevronRight, Edit2, Save, Trash2 } from "lucide-react";
@@ -44,7 +44,8 @@ const ProjectList: React.FC<ProjectListProps> = ({
 
   // Sort projects by name using useMemo
   const sortedProjects = useMemo(() => {
-    return [...projects].sort((a, b) => a.name.localeCompare(b.name));
+    const sorted = [...projects].sort((a, b) => a.name.localeCompare(b.name));
+    return sorted;
   }, [projects]);
 
   // Safely handle project selection

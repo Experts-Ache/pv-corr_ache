@@ -418,10 +418,7 @@ const Reports: React.FC<ReportsProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <Button
-                      onClick={() => {
-                        // Disabled for now
-                        showToast(t("output.view.disabled"), "info");
-                      }}
+                      onClick={() => navigate(`?view=output&reportId=${report.id}`)}
                       variant="ghost"
                       size="sm"
                       className="h-8 w-8 p-0"

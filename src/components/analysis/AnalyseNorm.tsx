@@ -6,6 +6,7 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "../../lib/supabase";
 import { showToast } from "../../lib/toast";
 import { Button } from "../ui/button";
+import { cn } from "@/lib/utils";
 
 interface AnalyseNormProps {
   currentTheme: Theme;
@@ -119,9 +120,10 @@ const AnalyseNorm: React.FC<AnalyseNormProps> = ({ currentTheme, currentLanguage
             key={norm.id}
             onClick={() => handleSelectNorm(norm.id)}
             disabled={loadingNorm}
-            className={`px-3 py-1 rounded text-sm transition-colors ${loadingNorm ? "opacity-50 cursor-not-allowed" : ""} ${
-              selectedNormId === norm.id ? "bg-accent-primary text-primary" : "text-primary-foreground hover:bg-theme"
-            }`}
+            variant="outline"
+            className={cn("border-primary hover:bg-primary", {
+              "bg-primary hover:bg-primary": selectedNormId === norm.id,
+            })}
           >
             <div className="flex items-center justify-between">
               <div>

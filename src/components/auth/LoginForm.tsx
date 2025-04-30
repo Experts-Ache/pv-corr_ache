@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
 import { GalleryVerticalEnd } from "lucide-react";
+import panelesLogin from "../../media/paneles-longin-form.jpg";
 
 interface LoginFormProps {
   currentTheme: Theme;
@@ -153,7 +154,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ currentTheme, onSuccess }) => {
       </div>
       <div className="relative hidden bg-muted lg:block">
         <img
-          src="file"
+          src={panelesLogin}
           alt="Background Image of Ache Engineering"
           className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />

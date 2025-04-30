@@ -4,7 +4,11 @@ import { generateHiddenId } from "../utils/generateHiddenId";
 import { createZone } from "./zones";
 import { showToast } from "../lib/toast";
 
-export const createField = async (projectId: string, field: Omit<Field, "id" | "hiddenId" | "gates" | "zones">) => {
+export const createField = async (
+  projectId: string,
+  field: Omit<Field, "id" | "hiddenId" | "gates" | "zones">,
+  neighboringStructureIds?: string[],
+) => {
   if (!projectId) {
     throw new Error("Project ID is required");
   }
@@ -18,7 +22,13 @@ export const createField = async (projectId: string, field: Omit<Field, "id" | "
       name: field.name,
       latitude: field.latitude,
       longitude: field.longitude,
+      pv_size: field.pv_size || null,
       has_fence: field.has_fence === "" ? null : field.has_fence === "yes" ? "yes" : field.has_fence === "no" ? "no" : null,
+      has_earthing: field.has_earthing || false,
+      earthing_connection_type: field.has_earthing ? field.earthing_connection_type || "none" : null,
+      connected_to_field_id: field.has_earthing && field.earthing_connection_type === "field" ? field.connected_to_field_id : null,
+      converter_station_id:
+        field.has_earthing && field.earthing_connection_type === "converter_station" ? field.converter_station_id : null,
     })
     .select()
     .single();
@@ -27,6 +37,26 @@ export const createField = async (projectId: string, field: Omit<Field, "id" | "
     console.error("Error creating field:", error);
     showToast(`Failed to create field: ${error.message}`, "error");
     throw error;
+  }
+
+  // Add neighboring structures if provided
+  if (neighboringStructureIds && neighboringStructureIds.length > 0) {
+    try {
+      const neighboringStructureInserts = neighboringStructureIds.map((structureId) => ({
+        field_id: newField.id,
+        neighboring_structure_id: structureId,
+      }));
+
+      const { error: nsError } = await supabase.from("field_neighboring_structures").insert(neighboringStructureInserts);
+
+      if (nsError) {
+        console.error("Error adding neighboring structures:", nsError);
+        showToast(`Warning: Field created but neighboring structures could not be added: ${nsError.message}`, "warning");
+      }
+    } catch (nsErr) {
+      console.error("Error adding neighboring structures:", nsErr);
+      showToast("Warning: Field created but neighboring structures could not be added", "warning");
+    }
   }
 
   showToast("Field created successfully", "success");
@@ -107,7 +137,15 @@ export const updateField = async (fieldId: string, field: Partial<Field>) => {
       name: field.name ?? existingField.name,
       latitude: field.latitude ?? existingField.latitude,
       longitude: field.longitude ?? existingField.longitude,
+      pv_size: field.pv_size !== undefined ? field.pv_size : existingField.pv_size,
       has_fence: field.has_fence === "" || field.has_fence === undefined ? null : field.has_fence,
+      has_earthing: field.has_earthing !== undefined ? field.has_earthing : existingField.has_earthing,
+      earthing_connection_type: field.has_earthing
+        ? field.earthing_connection_type || existingField.earthing_connection_type || "none"
+        : null,
+      connected_to_field_id: field.has_earthing && field.earthing_connection_type === "field" ? field.connected_to_field_id : null,
+      converter_station_id:
+        field.has_earthing && field.earthing_connection_type === "converter_station" ? field.converter_station_id : null,
     };
 
     // Update the field
@@ -116,6 +154,35 @@ export const updateField = async (fieldId: string, field: Partial<Field>) => {
     if (error) {
       console.error("Update error:", error);
       throw error;
+    }
+
+    // Update neighboring structures if provided
+    if (field.neighboringStructureIds !== undefined) {
+      try {
+        // First delete existing associations
+        const { error: deleteError } = await supabase.from("field_neighboring_structures").delete().eq("field_id", fieldId);
+
+        if (deleteError) {
+          console.error("Error deleting existing neighboring structures:", deleteError);
+          showToast(`Warning: Could not update neighboring structures: ${deleteError.message}`, "warning");
+        } else if (field.neighboringStructureIds && field.neighboringStructureIds.length > 0) {
+          // Then insert new ones
+          const neighboringStructureInserts = field.neighboringStructureIds.map((structureId) => ({
+            field_id: fieldId,
+            neighboring_structure_id: structureId,
+          }));
+
+          const { error: insertError } = await supabase.from("field_neighboring_structures").insert(neighboringStructureInserts);
+
+          if (insertError) {
+            console.error("Error adding new neighboring structures:", insertError);
+            showToast(`Warning: Could not add new neighboring structures: ${insertError.message}`, "warning");
+          }
+        }
+      } catch (nsErr) {
+        console.error("Error updating neighboring structures:", nsErr);
+        showToast("Warning: Field updated but neighboring structures could not be updated", "warning");
+      }
     }
 
     return data;
