@@ -67,26 +67,62 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
   }, []);
 
   // Memoize formatOutput function to prevent unnecessary re-renders
-  const formatOutput = useCallback((output: any, outputId: string): React.ReactNode => {
-    if (!output) return <span className="text-muted-foreground">No data</span>;
+  const formatOutput = useCallback(
+    (output: any, outputId: string): React.ReactNode => {
+      if (!output) return <span className="text-muted-foreground">No data</span>;
 
-    if (typeof output === 'object' && 'success' in output) {
-      const result = output as CalculationResult;
+      if (typeof output === "object" && "success" in output) {
+        const result = output as CalculationResult;
 
-      if (!result.success) {
+        if (!result.success) {
+          return (
+            <div className="text-destructive">
+              {result.errors && result.errors.length > 0 && (
+                <div className="text-xs">
+                  {result.errors.map((error, i) => (
+                    <div key={i}>{error}</div>
+                  ))}
+                </div>
+              )}
+              {result.metadata && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1 text-xs h-6 px-2"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleMetadata(outputId);
+                  }}
+                >
+                  {expandedMetadata.has(outputId) ? "Hide details" : "Show details"}
+                </Button>
+              )}
+              {expandedMetadata.has(outputId) && result.metadata && (
+                <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
+                  {JSON.stringify(result.metadata, null, 2)}
+                </pre>
+              )}
+            </div>
+          );
+        }
         return (
-          <div className="text-destructive">
-            {result.errors && result.errors.length > 0 && (
-              <div className="text-xs">
-                {result.errors.map((error, i) => (
-                  <div key={i}>{error}</div>
+          <div className="font-medium">
+            {result.value !== undefined ? result.value : ""}
+            {result.message && <div className="text-xs font-normal text-muted-foreground">{result.message}</div>}
+            {result.warnings && result.warnings.length > 0 && (
+              <div className="text-xs font-normal text-yellow-500">
+                {result.warnings.map((warning, i) => (
+                  <div key={i} className="flex items-start gap-1">
+                    <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
+                    <span>{warning}</span>
+                  </div>
                 ))}
               </div>
             )}
             {result.metadata && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="mt-1 text-xs h-6 px-2"
                 onClick={(e) => {
                   e.stopPropagation();
@@ -97,89 +133,55 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               </Button>
             )}
             {expandedMetadata.has(outputId) && result.metadata && (
-              <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
-                {JSON.stringify(result.metadata, null, 2)}
-              </pre>
+              <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">{JSON.stringify(result.metadata, null, 2)}</pre>
             )}
           </div>
         );
       }
-      
-      return (
-        <div className="font-medium">
-          {result.value !== undefined ? result.value : ''}
-          {result.message && <div className="text-xs font-normal text-muted-foreground">{result.message}</div>}
-          {result.warnings && result.warnings.length > 0 && (
-            <div className="text-xs font-normal text-yellow-500">
-              {result.warnings.map((warning, i) => (
-                <div key={i} className="flex items-start gap-1">
-                  <AlertTriangle size={12} className="mt-0.5 flex-shrink-0" />
-                  <span>{warning}</span>
-                </div>
-              ))}
-            </div>
-          )}
-          {result.metadata && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="mt-1 text-xs h-6 px-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleMetadata(outputId);
-              }}
-            >
-              {expandedMetadata.has(outputId) ? "Hide details" : "Show details"}
-            </Button>
-          )}
-          {expandedMetadata.has(outputId) && result.metadata && (
-            <pre className="mt-1 text-xs p-2 bg-muted/20 rounded overflow-auto max-h-32">
-              {JSON.stringify(result.metadata, null, 2)}
-            </pre>
-          )}
-        </div>
-      );
-    }
-    
-    if (typeof output === 'number') {
-      return output.toFixed(2);
-    }
-    
-    if (Array.isArray(output)) {
-      if (output.length >= 2) {
-        return `${output[0]} ± ${output[1]}`;
+
+      // Handle legacy number format
+      if (typeof output === "number") {
+        return output.toFixed(2);
       }
-      return output.join(', ');
-    }
-    
-    if (isObject(output) && 'value' in output) {
-      return (
-        <div className="font-medium">
-          {output.value}
-          {'sufficient' in output && (
-            <div className={`text-xs font-normal ${output.sufficient ? 'text-green-500' : 'text-destructive'}`}>
-              {output.sufficient ? (
-                <div className="flex items-center gap-1">
-                  <CheckCircle size={12} />
-                  <span>Sufficient</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1">
-                  <AlertTriangle size={12} />
-                  <span>Insufficient</span>
-                </div>
-              )}
-            </div>
-          )}
-          {'message' in output && (
-            <div className="text-xs font-normal text-muted-foreground">{output.message}</div>
-          )}
-        </div>
-      );
-    }
-    
-    return String(output);
-  }, [expandedMetadata, toggleMetadata]);
+
+      // Handle array format (like zinc loss rate)
+      if (Array.isArray(output)) {
+        if (output.length >= 2) {
+          return `${output[0]} ± ${output[1]}`;
+        }
+        return output.join(", ");
+      }
+
+      // Handle object with value/sufficient properties (legacy format)
+      if (isObject(output) && "value" in output) {
+        return (
+          <div className="font-medium">
+            {output.value}
+            {"sufficient" in output && (
+              <div className={`text-xs font-normal ${output.sufficient ? "text-green-500" : "text-destructive"}`}>
+                {output.sufficient ? (
+                  <div className="flex items-center gap-1">
+                    <CheckCircle size={12} />
+                    <span>Sufficient</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle size={12} />
+                    <span>Insufficient</span>
+                  </div>
+                )}
+              </div>
+            )}
+            {"message" in output && <div className="text-xs font-normal text-muted-foreground">{output.message}</div>}
+          </div>
+        );
+      }
+
+      // Default case: stringify the output
+      return String(output);
+    },
+    [expandedMetadata, toggleMetadata],
+  );
 
   // Initialize norm parameters
   useEffect(() => {
@@ -258,7 +260,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
   }, []);
 
   // Calculate results
-  useEffect(() => {    
+  useEffect(() => {
     if (!selectedDatapoints?.length || !selectedNorm || !parameterMap || Object.keys(parameterMap).length === 0) {
       return;
     }
@@ -267,9 +269,9 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
 
     for (const datapoint of selectedDatapoints) {
       if (!datapoint || !datapoint.id) continue;
-      
+
       const zRatings: Record<number, number> = {};
-      
+
       if (datapoint.ratings) {
         Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
           const param = parameterMap[paramId];
@@ -287,37 +289,29 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
           }
         });
       }
-      
+
       const b0Value = Object.entries(zRatings).reduce((sum, [num, rating]) => {
         if (parseInt(num) <= 10) {
           return sum + rating;
         }
         return sum;
       }, 0);
-      
-      const b1Value = b0Value + Object.entries(zRatings).reduce((sum, [num, rating]) => {
-        if (parseInt(num) > 10 && parseInt(num) <= 15) {
-          return sum + rating;
-        }
-        return sum;
-      }, 0);
-      
-      newCalculationResults[`${datapoint.id}_b0`] = createSuccessResult(
-        b0Value,
-        "",
-        "Sum of Z1-Z10 parameters",
-        undefined,
-        { zRatings }
-      );
-      
-      newCalculationResults[`${datapoint.id}_b1`] = createSuccessResult(
-        b1Value,
-        "",
-        "Sum of all Z parameters (Z1-Z15)",
-        undefined,
-        { zRatings }
-      );
-      
+
+      const b1Value =
+        b0Value +
+        Object.entries(zRatings).reduce((sum, [num, rating]) => {
+          if (parseInt(num) > 10 && parseInt(num) <= 15) {
+            return sum + rating;
+          }
+          return sum;
+        }, 0);
+
+      newCalculationResults[`${datapoint.id}_b0`] = createSuccessResult(b0Value, "", "Sum of Z1-Z10 parameters", undefined, { zRatings });
+
+      newCalculationResults[`${datapoint.id}_b1`] = createSuccessResult(b1Value, "", "Sum of all Z parameters (Z1-Z15)", undefined, {
+        zRatings,
+      });
+
       if (selectedNorm?.output_config && Array.isArray(selectedNorm.output_config)) {
         for (const output of selectedNorm.output_config) {
           if (output && output.id && output.formula) {
@@ -341,7 +335,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               Object.entries(zRatings).forEach(([num, rating]) => {
                 context[`Z${num}`] = rating;
               });
-              
+
               if (datapoint.ratings) {
                 Object.entries(datapoint.ratings).forEach(([paramId, rating]) => {
                   const param = parameterMap[paramId];
@@ -359,31 +353,27 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
               try {
                 const calculateOutput = new Function("values", "ratings", formula);
                 const result = calculateOutput(context.values, context.ratings);
-                
-                if (isObject(result) && 'success' in result) {
+
+                if (isObject(result) && "success" in result) {
                   newCalculationResults[`${datapoint.id}_${output.id}`] = result;
                 } else {
-                  newCalculationResults[`${datapoint.id}_${output.id}`] = createSuccessResult(
-                    result,
-                    output.unit,
-                    undefined,
-                    undefined,
-                    { formula, context }
-                  );
+                  newCalculationResults[`${datapoint.id}_${output.id}`] = createSuccessResult(result, output.unit, undefined, undefined, {
+                    formula,
+                    context,
+                  });
                 }
               } catch (calcError) {
                 console.error(`Error executing calculation for ${output.id}:`, calcError);
                 newCalculationResults[`${datapoint.id}_${output.id}`] = createErrorResult(
                   [`Calculation error: ${calcError instanceof Error ? calcError.message : String(calcError)}`],
-                  { formula, context, error: calcError }
+                  { formula, context, error: calcError },
                 );
               }
             } catch (err) {
               console.error(`Error calculating output ${output.id}:`, err);
-              newCalculationResults[`${datapoint.id}_${output.id}`] = createErrorResult([
-                `Calculation error: ${err instanceof Error ? err.message : String(err)}`
-              ],
-                { error: err }
+              newCalculationResults[`${datapoint.id}_${output.id}`] = createErrorResult(
+                [`Calculation error: ${err instanceof Error ? err.message : String(err)}`],
+                { error: err },
               );
             }
           }
@@ -486,13 +476,11 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
         {results.map(({ datapoint, parameterRatings, outputs, classification }) => (
           <div key={datapoint.id} className="p-4 rounded-lg border border-theme">
             <div className="flex flex-col gap-1 mb-3">
-              <div 
-                className="flex items-center justify-between cursor-pointer" 
-                onClick={() => toggleDatapoint(datapoint.id)}
-              >
+              <div className="flex items-center justify-between cursor-pointer" onClick={() => toggleDatapoint(datapoint.id)}>
                 <div className="font-medium text-primary">
                   <span className="font-medium">{t("datapoints")}: </span> {datapoint.name}
                 </div>
+                <div></div>
                 <div className="flex items-center gap-4">
                   <div className="text-sm text-muted-foreground">
                     <span className="font-medium">{t("Created")}:</span>{" "}
@@ -516,10 +504,13 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                 <TableBody>
                   {Array.isArray(selectedNorm?.output_config) &&
                     selectedNorm.output_config.map((output: any) => {
-                      if (!output?.id) return null;
-                      
-                      const outputResult = outputs[`${datapoint.id}_${output.id}`];
-                      
+                      if (!output || !output.id) return null;
+
+                      // Get the output result
+                      const outputResult = outputs[output.id];
+                      const isError = outputs[`${output.id}_error`];
+
+                      // Determine status based on output
                       let statusElement;
                       if (outputResult && !outputResult.success) {
                         statusElement = (
@@ -531,20 +522,25 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                       } else if (output.id === "b0") {
                         statusElement = (
                           <div className="flex items-center gap-1">
-                            <span className={`px-2 py-0.5 rounded text-xs ${
-                              classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
-                              classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
-                              classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
-                              "bg-red-500/20 text-red-700"
-                            }`}>
+                            <span
+                              className={`px-2 py-0.5 rounded text-xs ${
+                                classification.class === "Ia"
+                                  ? "bg-green-500/20 text-green-700"
+                                  : classification.class === "Ib"
+                                    ? "bg-blue-500/20 text-blue-700"
+                                    : classification.class === "II"
+                                      ? "bg-yellow-500/20 text-yellow-700"
+                                      : "bg-red-500/20 text-red-700"
+                              }`}
+                            >
                               {classification.class} - {classification.stress}
                             </span>
                           </div>
                         );
                       } else if (
-                        outputResult && 
-                        typeof outputResult === 'object' && 
-                        'warnings' in outputResult && 
+                        outputResult &&
+                        typeof outputResult === "object" &&
+                        "warnings" in outputResult &&
                         outputResult.warnings?.length > 0
                       ) {
                         statusElement = (
@@ -561,23 +557,19 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                           </div>
                         );
                       }
-                      
+
                       return (
                         <TableRow key={output.id} className="hover:bg-muted/10">
                           <TableCell className="font-medium whitespace-nowrap">
                             {output.name}
-                            {output.description && (
-                              <div className="text-xs text-muted-foreground">{output.description}</div>
-                            )}
+                            {output.description && <div className="text-xs text-muted-foreground">{output.description}</div>}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <div className="flex-1">
                                 {formatOutput(outputResult, `${datapoint.id}_${output.id}`)}
                                 {output.unit && outputResult?.success !== false && (
-                                  <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">
-                                    [{output.unit}]
-                                  </span>
+                                  <span className="text-muted-foreground ml-1 text-xs whitespace-nowrap">[{output.unit}]</span>
                                 )}
                               </div>
                             </div>
@@ -614,7 +606,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                   </TableBody>
                 </Table>
               )}
-              
+
               {(!selectedNorm?.output_config || !Array.isArray(selectedNorm.output_config) || selectedNorm.output_config.length === 0) && (
                 <Table>
                   <TableCaption>{t("analysis.calculation_results")}</TableCaption>
@@ -631,17 +623,20 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                         B0
                         <div className="text-xs text-muted-foreground">Sum of Z1-Z10 parameters</div>
                       </TableCell>
-                      <TableCell>
-                        {formatOutput(outputs[`${datapoint.id}_b0`], `${datapoint.id}_b0`)}
-                      </TableCell>
+                      <TableCell>{formatOutput(outputs[`${datapoint.id}_b0`], `${datapoint.id}_b0`)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <span className={`px-2 py-0.5 rounded text-xs ${
-                            classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
-                            classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
-                            classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
-                            "bg-red-500/20 text-red-700"
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs ${
+                              classification.class === "Ia"
+                                ? "bg-green-500/20 text-green-700"
+                                : classification.class === "Ib"
+                                  ? "bg-blue-500/20 text-blue-700"
+                                  : classification.class === "II"
+                                    ? "bg-yellow-500/20 text-yellow-700"
+                                    : "bg-red-500/20 text-red-700"
+                            }`}
+                          >
                             {classification.class} - {classification.stress}
                           </span>
                         </div>
@@ -652,9 +647,7 @@ const AnalyseResult: React.FC<AnalyseResultProps> = ({
                         B1
                         <div className="text-xs text-muted-foreground">Sum of all Z parameters (Z1-Z15)</div>
                       </TableCell>
-                      <TableCell>
-                        {formatOutput(outputs[`${datapoint.id}_b1`], `${datapoint.id}_b1`)}
-                      </TableCell>
+                      <TableCell>{formatOutput(outputs[`${datapoint.id}_b1`], `${datapoint.id}_b1`)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-green-600">
                           <CheckCircle size={14} />

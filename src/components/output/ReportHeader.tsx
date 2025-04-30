@@ -11,16 +11,9 @@ interface ReportHeaderProps {
   className?: string;
 }
 
-const ReportHeader: React.FC<ReportHeaderProps> = ({ 
-  project, 
-  zone, 
-  norm, 
-  reportId = "Preview", 
-  createdAt,
-  className = ""
-}) => {
+const ReportHeader: React.FC<ReportHeaderProps> = ({ project, zone, norm, reportId = "Preview", createdAt, className = "" }) => {
   const t = useTranslation("en");
-  
+
   return (
     <div className={`mb-8 p-6 rounded-lg border border-input bg-card print:border-black print:border print:p-4 ${className}`}>
       <div className="flex justify-between items-start mb-6">

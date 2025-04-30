@@ -33,7 +33,7 @@ export interface Field {
   pv_size?: string | number;
   has_fence?: string | boolean;
   has_earthing?: boolean;
-  earthing_connection_type?: 'field' | 'converter_station' | 'none';
+  earthing_connection_type?: "field" | "converter_station" | "none";
   connected_to_field_id?: string;
   converter_station_id?: string;
   neighboringStructureIds?: string[];

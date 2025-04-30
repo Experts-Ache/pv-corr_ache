@@ -5,6 +5,7 @@ import { Parameter } from "../../../../types/parameters";
 import { supabase } from "../../../../lib/supabase";
 import { Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ParameterFilterProps {
   currentTheme: Theme;
@@ -75,9 +76,10 @@ const ParameterFilter: React.FC<ParameterFilterProps> = ({ currentTheme, current
           <Button
             key={norm.id}
             onClick={() => handleNormChange(norm.id)}
-            className={`px-3 py-1 rounded text-sm transition-colors ${
-              selectedNorm === norm.id ? "bg-accent-primary text-primary" : "text-primary-foreground hover:bg-theme"
-            }`}
+            variant="outline"
+            className={cn("border-primary hover:bg-primary", {
+              "bg-primary hover:bg-primary": selectedNorm === norm.id,
+            })}
           >
             {norm.name}
           </Button>

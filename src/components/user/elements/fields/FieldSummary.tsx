@@ -21,7 +21,7 @@ interface FieldSummaryProps {
 
 const handleSave = async () => {
   if (!field.id) return;
-    
+
   let pvSize: number | string = editValues.pv_size;
   if (editValues.pv_size) {
     const parsedSize = parseFloat(editValues.pv_size);
@@ -29,13 +29,13 @@ const handleSave = async () => {
       pvSize = parsedSize;
     }
   }
-      
+
   await updateField(field.id, {
     ...editValues,
     pv_size: pvSize,
-    neighboringStructureIds: editValues.neighboringStructureIds
+    neighboringStructureIds: editValues.neighboringStructureIds,
   });
-      
+
   const updatedProjects = await fetchProjects();
   setProjects(updatedProjects);
   setIsEditing(false);

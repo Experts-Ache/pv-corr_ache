@@ -13,28 +13,30 @@ interface ReportResultsProps {
   className?: string;
 }
 
-const ReportResults: React.FC<ReportResultsProps> = ({ 
-  totalRating, 
+const ReportResults: React.FC<ReportResultsProps> = ({
+  totalRating,
   classification,
   normResults,
   calculationResults,
   datapointsToUse,
   project,
-  className = ""
+  className = "",
 }) => {
   const t = useTranslation("en");
-  
+
   // Check if any field in the project is missing earthing
   const missingEarthing = React.useMemo(() => {
     if (!project || !project.fields || !Array.isArray(project.fields)) {
       return false;
     }
-    
-    return project.fields.some(field => !field.has_earthing);
+
+    return project.fields.some((field) => !field.has_earthing);
   }, [project]);
-  
+
   return (
-    <div className={`mb-8 p-6 rounded-lg border border-input bg-card print:border-black print:border print:p-4 print:page-break-before-avoid ${className}`}>
+    <div
+      className={`mb-8 p-6 rounded-lg border border-input bg-card print:border-black print:border print:p-4 print:page-break-before-avoid ${className}`}
+    >
       <h2 className="text-lg font-medium text-foreground mb-4 print:text-black">{t("analysis.final_results")}</h2>
 
       <div className="space-y-6">
@@ -44,7 +46,7 @@ const ReportResults: React.FC<ReportResultsProps> = ({
             {datapointsToUse.map((datapoint) => (
               <div key={datapoint.id} className="border border-input rounded-lg p-4">
                 <h3 className="text-base font-medium mb-4">{datapoint.name || "Datapoint"}</h3>
-                
+
                 <table className="w-full border-collapse mb-4">
                   <thead>
                     <tr className="border-b">
@@ -61,28 +63,31 @@ const ReportResults: React.FC<ReportResultsProps> = ({
                         <div className="text-xs text-muted-foreground">Sum of Z1-Z10 parameters</div>
                       </td>
                       <td className="p-2">
-                        {calculationResults && calculationResults[`${datapoint.id}_b0`] ? (
-                          formatOutput(calculationResults[`${datapoint.id}_b0`])
-                        ) : (
-                          Object.values(datapoint.ratings || {})
-                            .reduce((sum: number, rating: number) => sum + rating, 0)
-                            .toFixed(2)
-                        )}
+                        {calculationResults && calculationResults[`${datapoint.id}_b0`]
+                          ? formatOutput(calculationResults[`${datapoint.id}_b0`])
+                          : Object.values(datapoint.ratings || {})
+                              .reduce((sum: number, rating: number) => sum + rating, 0)
+                              .toFixed(2)}
                       </td>
                       <td className="p-2">
                         <div className="flex items-center gap-1">
-                          <span className={`px-2 py-0.5 rounded text-xs ${
-                            classification.class === "Ia" ? "bg-green-500/20 text-green-700" :
-                            classification.class === "Ib" ? "bg-blue-500/20 text-blue-700" :
-                            classification.class === "II" ? "bg-yellow-500/20 text-yellow-700" :
-                            "bg-red-500/20 text-red-700"
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-xs ${
+                              classification.class === "Ia"
+                                ? "bg-green-500/20 text-green-700"
+                                : classification.class === "Ib"
+                                  ? "bg-blue-500/20 text-blue-700"
+                                  : classification.class === "II"
+                                    ? "bg-yellow-500/20 text-yellow-700"
+                                    : "bg-red-500/20 text-red-700"
+                            }`}
+                          >
                             {classification.class} - {classification.stress}
                           </span>
                         </div>
                       </td>
                     </tr>
-                    
+
                     {/* B1 Calculation */}
                     <tr className="border-b">
                       <td className="p-2 font-medium">
@@ -90,13 +95,11 @@ const ReportResults: React.FC<ReportResultsProps> = ({
                         <div className="text-xs text-muted-foreground">Sum of all Z parameters (Z1-Z15)</div>
                       </td>
                       <td className="p-2">
-                        {calculationResults && calculationResults[`${datapoint.id}_b1`] ? (
-                          formatOutput(calculationResults[`${datapoint.id}_b1`])
-                        ) : (
-                          Object.values(datapoint.ratings || {})
-                            .reduce((sum: number, rating: number) => sum + rating, 0)
-                            .toFixed(2)
-                        )}
+                        {calculationResults && calculationResults[`${datapoint.id}_b1`]
+                          ? formatOutput(calculationResults[`${datapoint.id}_b1`])
+                          : Object.values(datapoint.ratings || {})
+                              .reduce((sum: number, rating: number) => sum + rating, 0)
+                              .toFixed(2)}
                       </td>
                       <td className="p-2">
                         <div className="flex items-center gap-1 text-green-600">
@@ -105,55 +108,48 @@ const ReportResults: React.FC<ReportResultsProps> = ({
                         </div>
                       </td>
                     </tr>
-                    
+
                     {/* Additional Calculation Results */}
-                    {calculationResults && Object.entries(calculationResults)
-                      .filter(([key, _]) => key.startsWith(`${datapoint.id}_`) && 
-                                          !key.endsWith('_b0') && 
-                                          !key.endsWith('_b1'))
-                      .map(([key, value]) => {
-                        const outputId = key.replace(`${datapoint.id}_`, '');
-                        return (
-                          <tr key={key} className="border-b">
-                            <td className="p-2 font-medium">
-                              {outputId.toUpperCase()}
-                              {value.message && (
-                                <div className="text-xs text-muted-foreground">{value.message}</div>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              {formatOutput(value)}
-                              {value.unit && (
-                                <span className="text-muted-foreground ml-1 text-xs">[{value.unit}]</span>
-                              )}
-                            </td>
-                            <td className="p-2">
-                              {value.success === false ? (
-                                <div className="flex items-center gap-1 text-destructive">
-                                  <AlertTriangle size={14} />
-                                  <span>Error</span>
-                                </div>
-                              ) : value.warnings && value.warnings.length > 0 ? (
-                                <div className="flex items-center gap-1 text-yellow-600">
-                                  <AlertTriangle size={14} />
-                                  <span>Warning</span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-1 text-green-600">
-                                  <Check size={14} />
-                                  <span>OK</span>
-                                </div>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                    {calculationResults &&
+                      Object.entries(calculationResults)
+                        .filter(([key, _]) => key.startsWith(`${datapoint.id}_`) && !key.endsWith("_b0") && !key.endsWith("_b1"))
+                        .map(([key, value]) => {
+                          const outputId = key.replace(`${datapoint.id}_`, "");
+                          return (
+                            <tr key={key} className="border-b">
+                              <td className="p-2 font-medium">
+                                {outputId.toUpperCase()}
+                                {value.message && <div className="text-xs text-muted-foreground">{value.message}</div>}
+                              </td>
+                              <td className="p-2">
+                                {formatOutput(value)}
+                                {value.unit && <span className="text-muted-foreground ml-1 text-xs">[{value.unit}]</span>}
+                              </td>
+                              <td className="p-2">
+                                {value.success === false ? (
+                                  <div className="flex items-center gap-1 text-destructive">
+                                    <AlertTriangle size={14} />
+                                    <span>Error</span>
+                                  </div>
+                                ) : value.warnings && value.warnings.length > 0 ? (
+                                  <div className="flex items-center gap-1 text-yellow-600">
+                                    <AlertTriangle size={14} />
+                                    <span>Warning</span>
+                                  </div>
+                                ) : (
+                                  <div className="flex items-center gap-1 text-green-600">
+                                    <Check size={14} />
+                                    <span>OK</span>
+                                  </div>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                   </tbody>
                 </table>
-                
-                <div className="text-right text-sm font-medium">
-                  Calculation Results
-                </div>
+
+                <div className="text-right text-sm font-medium">Calculation Results</div>
               </div>
             ))}
           </div>
@@ -189,7 +185,7 @@ const ReportResults: React.FC<ReportResultsProps> = ({
               </div>
             </div>
           </div>
-          
+
           <div className="mt-6 pt-6 border-t border-input">
             <h3 className="text-base font-medium mb-3">{t("analysis.recommendations")}</h3>
             <p className="text-muted-foreground">
@@ -199,7 +195,7 @@ const ReportResults: React.FC<ReportResultsProps> = ({
                   ? "Moderate corrosion protection measures recommended."
                   : "Enhanced corrosion protection measures required."}
             </p>
-            
+
             {/* Earthing warning */}
             {missingEarthing && (
               <div className="mt-4 p-3 border border-yellow-500/20 bg-yellow-500/10 rounded-md">
@@ -210,7 +206,7 @@ const ReportResults: React.FC<ReportResultsProps> = ({
                       {t("field.earthing_warning_title") || "Earthing Connection Warning"}
                     </h4>
                     <p className="text-sm text-yellow-600 dark:text-yellow-300 mt-1">
-                      {t("field.earthing_warning_message") || 
+                      {t("field.earthing_warning_message") ||
                         "One or more fields in this project are missing earthing connections. Proper earthing is essential for safety and protection against electrical faults."}
                     </p>
                   </div>

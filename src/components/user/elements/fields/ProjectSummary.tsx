@@ -55,21 +55,21 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
     if (!project.fields || !Array.isArray(project.fields)) {
       return 0;
     }
-    
+
     return project.fields.reduce((total, field) => {
       let fieldPvSize = 0;
-      
+
       if (field.pv_size !== undefined && field.pv_size !== null) {
-        if (typeof field.pv_size === 'string') {
+        if (typeof field.pv_size === "string") {
           const parsed = parseFloat(field.pv_size);
           if (!isNaN(parsed)) {
             fieldPvSize = parsed;
           }
-        } else if (typeof field.pv_size === 'number') {
+        } else if (typeof field.pv_size === "number") {
           fieldPvSize = field.pv_size;
         }
       }
-      
+
       return total + fieldPvSize;
     }, 0);
   }, [project.fields]);
@@ -148,32 +148,27 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
             <TableHeader>
               <TableRow>
                 <TableHead colSpan={2} className="p-4 text-left font-semibold text-card-foreground cursor-pointer" onClick={onToggle}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="project-overview-title"> {translation("project.overview")}</span>
-                      <span className="text-lg">{project.name}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                          {project.fields?.length || 0}
+                  <div className="w-full flex items-center justify-between">
+                    <div className="w-full flex items-center  gap-2">
+                      <div className="w-[20vw] flex items-center gap-2">
+                        <span className="text-primary whitespace-nowrap">{translation("project.overview")}</span>
+                        <span className="text-lg truncate">{project.name}</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                          {project.fields?.length || 0} {translation("fields")}
                         </span>
-                        <span className="inline-flex items-center gap-1">
-                          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                            {project.fields?.reduce((acc, field) => acc + (field.zones?.length || 0), 0) || 0}
-                          </span>
-                          <span className="text-xs text-muted-foreground text-left">{translation("zones")}</span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                          {project.fields?.reduce((acc, field) => acc + (field.zones?.length || 0), 0) || 0} {translation("zones")}
                         </span>
-                        <span className="inline-flex items-center gap-1">
-                          <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                            {project.fields?.reduce(
-                              (acc, field) => acc + (field.zones?.reduce((zAcc, zone) => zAcc + (zone.datapoints?.length || 0), 0) || 0),
-                              0,
-                            ) || 0}
-                          </span>
-                          <span className="text-xs text-muted-foreground text-left">{translation("datapoints")}</span>
+                        <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                          {project.fields?.reduce(
+                            (acc, field) => acc + (field.zones?.reduce((zAcc, zone) => zAcc + (zone.datapoints?.length || 0), 0) || 0),
+                            0,
+                          ) || 0}{" "}
+                          {translation("datapoints")}
                         </span>
-                      </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {isEditing ? (

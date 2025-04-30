@@ -1,4 +1,4 @@
-import { showToast } from "../lib/toast"; 
+import { showToast } from "../lib/toast";
 import { createSuccessResult, createWarningResult, createErrorResult } from "../types/calculations";
 
 /**
@@ -75,7 +75,7 @@ export const calculateZincLossRate = (
     }
 
     console.log("Soil aggressiveness:", isAggressive);
-    
+
     // Set zinc loss rate based on soil aggressiveness
     if (isAggressive) {
       zincLossRate = [25, 8]; // Aggressive soil: 25 ± 8 μm/year
@@ -97,33 +97,31 @@ export const calculateZincLossRate = (
       steelLossRate,
       zincLifetime,
       requiredReserve,
-      warnings
+      warnings,
     });
 
     // Return the results with any warnings
     if (warnings.length > 0) {
-      return createWarningResult(
-        [zincLossRate, steelLossRate, zincLifetime, requiredReserve],
-        "μm/year",
-        warnings,
-        { isAggressive, resistivity, chlorides, pH, soilType }
-      );
+      return createWarningResult([zincLossRate, steelLossRate, zincLifetime, requiredReserve], "μm/year", warnings, {
+        isAggressive,
+        resistivity,
+        chlorides,
+        pH,
+        soilType,
+      });
     } else {
       return createSuccessResult(
         [zincLossRate, steelLossRate, zincLifetime, requiredReserve],
         "μm/year",
         "Calculation completed successfully",
         undefined,
-        { isAggressive, resistivity, chlorides, pH, soilType }
+        { isAggressive, resistivity, chlorides, pH, soilType },
       );
     }
   } catch (error) {
     console.error("Error in zinc loss rate calculation:", error);
     showToast("Error calculating zinc loss rate", "error");
-    return createErrorResult(
-      [error instanceof Error ? error.message : "Unknown calculation error"],
-      { error: String(error) }
-    );
+    return createErrorResult([error instanceof Error ? error.message : "Unknown calculation error"], { error: String(error) });
   }
 };
 

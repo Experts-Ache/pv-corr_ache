@@ -8,7 +8,7 @@ interface ReportMethodologyProps {
 
 const ReportMethodology: React.FC<ReportMethodologyProps> = ({ norm, className = "" }) => {
   const t = useTranslation("en");
-  
+
   return (
     <div className={`mb-8 p-6 rounded-lg border border-input bg-card print:border-black print:border print:p-4 ${className}`}>
       <h2 className="text-lg font-medium text-foreground mb-4 print:text-black">{t("analysis.methodology")}</h2>

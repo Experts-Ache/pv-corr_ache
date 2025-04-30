@@ -43,7 +43,8 @@ let translations: TranslationMap = {
   "field.enter_converter_id": "Enter converter station ID",
   "field.converter_station_note": "Note: Converter station functionality will be available in a future update.",
   "field.earthing_warning_title": "Earthing Connection Warning",
-  "field.earthing_warning_message": "One or more fields in this project are missing earthing connections. Proper earthing is essential for safety and protection against electrical faults.",
+  "field.earthing_warning_message":
+    "One or more fields in this project are missing earthing connections. Proper earthing is essential for safety and protection against electrical faults.",
   "zones.location": "Location",
   "analysis.create_report": "Create Report",
   "analysis.report_options": "Report Options",

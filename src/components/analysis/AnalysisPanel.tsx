@@ -46,7 +46,7 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
   const t = useTranslation(currentLanguage);
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Function to preview report
   const handlePreviewReport = () => {
     if (!selectedProject || !selectedZone || !selectedNorm || selectedDatapoints.length === 0) {
@@ -54,24 +54,26 @@ const AnalysisPanel: React.FC<AnalysisPanelProps> = ({
       showToast("Please select datapoints and a norm before previewing a report", "error");
       return;
     }
-    
+
     try {
       // Show a loading toast
       const toastId = showToast("Preparing report preview...", "loading");
-      
+
       // Get the datapoint IDs to include in the URL
       const datapointIdsParam = selectedDatapoints.join(",");
-      
+
       console.log("Preview report with params:", {
         projectId: selectedProject.id,
         zoneId: selectedZone.id,
         normId: selectedNorm.id,
-        datapointIds: datapointIdsParam
+        datapointIds: datapointIdsParam,
       });
-      
+
       // Navigate to output view with preview parameters
-      navigate(`?view=output&preview=true&projectId=${selectedProject.id}&zoneId=${selectedZone.id}&normId=${selectedNorm.id}&datapointIds=${datapointIdsParam}`);
-      
+      navigate(
+        `?view=output&preview=true&projectId=${selectedProject.id}&zoneId=${selectedZone.id}&normId=${selectedNorm.id}&datapointIds=${datapointIdsParam}`,
+      );
+
       // Update the toast to success
       showToast("Report preview ready", "success", { id: toastId });
     } catch (err) {

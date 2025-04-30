@@ -57,16 +57,13 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
           setLoadingStructures(false);
         }
       };
-      
+
       const loadAvailableFields = async () => {
         setLoadingFields(true);
         try {
           // Fetch all fields from the current project except the one being edited
-          const { data, error } = await supabase
-            .from("fields")
-            .select("id, name")
-            .eq("project_id", selectedProjectId);
-            
+          const { data, error } = await supabase.from("fields").select("id, name").eq("project_id", selectedProjectId);
+
           if (error) throw error;
           setAvailableFields(data || []);
         } catch (err) {
@@ -75,7 +72,7 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
           setLoadingFields(false);
         }
       };
-      
+
       loadNeighboringStructures();
       loadAvailableFields();
     }
@@ -83,18 +80,18 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type, checked } = event.target;
-    
+
     // Handle checkbox changes differently
-    const newValue = type === 'checkbox' ? checked : value;
-    
+    const newValue = type === "checkbox" ? checked : value;
+
     setNewField((previous) => ({
       ...previous,
       [name]: newValue,
     }));
-    
+
     // Special handling for earthing connection type
     if (name === "earthing_connection_type") {
-      setNewField(prev => ({
+      setNewField((prev) => ({
         ...prev,
         connected_to_field_id: value === "field" ? prev.connected_to_field_id : "",
         converter_station_id: value === "converter_station" ? prev.converter_station_id : "",
@@ -108,17 +105,17 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
   };
 
   const handleToggleNeighboringStructure = (structureId: string) => {
-    setNewField(prev => {
+    setNewField((prev) => {
       const currentIds = prev.neighboringStructureIds || [];
       if (currentIds.includes(structureId)) {
         return {
           ...prev,
-          neighboringStructureIds: currentIds.filter(id => id !== structureId)
+          neighboringStructureIds: currentIds.filter((id) => id !== structureId),
         };
       } else {
         return {
           ...prev,
-          neighboringStructureIds: [...currentIds, structureId]
+          neighboringStructureIds: [...currentIds, structureId],
         };
       }
     });
@@ -145,17 +142,23 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
         longitude = formatCoordinate(longitude);
       }
 
-      await createField(selectedProjectId, {
-        name: newField.name.trim(),
-        latitude: latitude || undefined,
-        longitude: longitude || undefined,
-        pv_size: newField.pv_size ? parseFloat(newField.pv_size) : null,
-        has_fence: newField.has_fence as "yes" | "no",
-        has_earthing: newField.has_earthing,
-        earthing_connection_type: newField.has_earthing ? newField.earthing_connection_type : undefined,
-        connected_to_field_id: newField.has_earthing && newField.earthing_connection_type === "field" ? newField.connected_to_field_id : undefined,
-        converter_station_id: newField.has_earthing && newField.earthing_connection_type === "converter_station" ? newField.converter_station_id : undefined,
-      }, newField.neighboringStructureIds);
+      await createField(
+        selectedProjectId,
+        {
+          name: newField.name.trim(),
+          latitude: latitude || undefined,
+          longitude: longitude || undefined,
+          pv_size: newField.pv_size ? parseFloat(newField.pv_size) : null,
+          has_fence: newField.has_fence as "yes" | "no",
+          has_earthing: newField.has_earthing,
+          earthing_connection_type: newField.has_earthing ? newField.earthing_connection_type : undefined,
+          connected_to_field_id:
+            newField.has_earthing && newField.earthing_connection_type === "field" ? newField.connected_to_field_id : undefined,
+          converter_station_id:
+            newField.has_earthing && newField.earthing_connection_type === "converter_station" ? newField.converter_station_id : undefined,
+        },
+        newField.neighboringStructureIds,
+      );
 
       // Fetch fresh projects data to ensure everything is in sync
       // Wait a moment to ensure the database has completed the field and zone creation
@@ -244,18 +247,18 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                   placeholder="Enter PV size in Megawatt"
                 />
               </Label>
-              
+
               <div className="block text-sm mb-1 text-secondary">
                 <div className="flex items-center space-x-2 mb-2">
-                  <Checkbox 
+                  <Checkbox
                     id="has-earthing"
                     name="has_earthing"
                     checked={newField.has_earthing}
-                    onCheckedChange={(checked) => 
+                    onCheckedChange={(checked) =>
                       setNewField({
                         ...newField,
                         has_earthing: !!checked,
-                        earthing_connection_type: !!checked ? newField.earthing_connection_type : "none"
+                        earthing_connection_type: !!checked ? newField.earthing_connection_type : "none",
                       })
                     }
                   />
@@ -263,13 +266,11 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                     {translation("field.has_earthing") || "Has Earthing Connection"}
                   </Label>
                 </div>
-                
+
                 {newField.has_earthing && (
                   <div className="ml-6 space-y-4">
                     <div>
-                      <Label className="block text-sm mb-1">
-                        {translation("field.earthing_connection_type") || "Connection Type"}
-                      </Label>
+                      <Label className="block text-sm mb-1">{translation("field.earthing_connection_type") || "Connection Type"}</Label>
                       <select
                         name="earthing_connection_type"
                         value={newField.earthing_connection_type}
@@ -278,15 +279,15 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                       >
                         <option value="none">{translation("field.earthing_connection_none") || "No Connection"}</option>
                         <option value="field">{translation("field.earthing_connection_field") || "To Another Field"}</option>
-                        <option value="converter_station">{translation("field.earthing_connection_converter") || "To Converter Station"}</option>
+                        <option value="converter_station">
+                          {translation("field.earthing_connection_converter") || "To Converter Station"}
+                        </option>
                       </select>
                     </div>
-                    
+
                     {newField.earthing_connection_type === "field" && (
                       <div>
-                        <Label className="block text-sm mb-1">
-                          {translation("field.connected_to_field") || "Connected to Field"}
-                        </Label>
+                        <Label className="block text-sm mb-1">{translation("field.connected_to_field") || "Connected to Field"}</Label>
                         <select
                           name="connected_to_field_id"
                           value={newField.connected_to_field_id}
@@ -297,19 +298,19 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                           {loadingFields ? (
                             <option disabled>Loading fields...</option>
                           ) : (
-                            availableFields.map(field => (
-                              <option key={field.id} value={field.id}>{field.name}</option>
+                            availableFields.map((field) => (
+                              <option key={field.id} value={field.id}>
+                                {field.name}
+                              </option>
                             ))
                           )}
                         </select>
                       </div>
                     )}
-                    
+
                     {newField.earthing_connection_type === "converter_station" && (
                       <div>
-                        <Label className="block text-sm mb-1">
-                          {translation("field.converter_station") || "Converter Station"}
-                        </Label>
+                        <Label className="block text-sm mb-1">{translation("field.converter_station") || "Converter Station"}</Label>
                         <Input
                           type="text"
                           name="converter_station_id"
@@ -319,14 +320,15 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                           placeholder={translation("field.enter_converter_id") || "Enter converter station ID"}
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          {translation("field.converter_station_note") || "Note: Converter station functionality will be available in a future update."}
+                          {translation("field.converter_station_note") ||
+                            "Note: Converter station functionality will be available in a future update."}
                         </p>
                       </div>
                     )}
                   </div>
                 )}
               </div>
-              
+
               {(newField.latitude && !isValidCoordinate(newField.latitude)) ||
               (newField.longitude && !isValidCoordinate(newField.longitude)) ? (
                 <div className="text-destructive flex items-center gap-1 text-xs mt-1">
@@ -347,7 +349,7 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                   <option value="yes">{translation("field.has_fence.yes")}</option>
                 </select>
               </div>
-              
+
               <div className="block text-sm mb-1 text-secondary">
                 <Label>{translation("field.neighboring_structures") || "Neighboring Structures"}</Label>
                 <div className="mt-2 max-h-60 overflow-y-auto border border-input rounded-md p-2">
@@ -357,22 +359,17 @@ const FieldForm: React.FC<FieldFormProps> = ({ currentTheme, selectedProjectId, 
                     <div className="text-center p-4 text-muted-foreground">No neighboring structures available</div>
                   ) : (
                     <div className="space-y-2">
-                      {neighboringStructures.map(structure => (
+                      {neighboringStructures.map((structure) => (
                         <div key={structure.id} className="flex items-center space-x-2">
-                          <Checkbox 
+                          <Checkbox
                             id={`structure-${structure.id}`}
                             checked={newField.neighboringStructureIds.includes(structure.id)}
                             onCheckedChange={() => handleToggleNeighboringStructure(structure.id)}
                           />
-                          <Label 
-                            htmlFor={`structure-${structure.id}`}
-                            className="text-sm cursor-pointer"
-                          >
+                          <Label htmlFor={`structure-${structure.id}`} className="text-sm cursor-pointer">
                             {structure.name}
                             {structure.construction_year && (
-                              <span className="text-xs text-muted-foreground ml-2">
-                                ({structure.construction_year})
-                              </span>
+                              <span className="text-xs text-muted-foreground ml-2">({structure.construction_year})</span>
                             )}
                           </Label>
                         </div>

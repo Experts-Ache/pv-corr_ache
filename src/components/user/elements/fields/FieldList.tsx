@@ -41,6 +41,7 @@ const FieldList: React.FC<FieldListProps> = ({
   selectedProjectId,
   selectedCustomerId,
 }) => {
+  console.log("Received fields:", initialFields); // Log the fields received
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingValues, setEditingValues] = useState<Record<string, string>>({});
   const [updatingField, setUpdatingField] = useState(false);
@@ -73,7 +74,7 @@ const FieldList: React.FC<FieldListProps> = ({
         setLoadingStructures(false);
       }
     };
-    
+
     loadNeighboringStructures();
   }, []);
 
@@ -83,21 +84,21 @@ const FieldList: React.FC<FieldListProps> = ({
       const loadFieldStructures = async () => {
         try {
           const structures = await fetchFieldNeighboringStructures(editingId);
-          setFieldNeighboringStructures(prev => ({
+          setFieldNeighboringStructures((prev) => ({
             ...prev,
-            [editingId]: structures.map(s => s.id)
+            [editingId]: structures.map((s) => s.id),
           }));
-          
+
           // Update editing values with the current neighboring structures
-          setEditingValues(prev => ({
+          setEditingValues((prev) => ({
             ...prev,
-            neighboringStructureIds: structures.map(s => s.id)
+            neighboringStructureIds: structures.map((s) => s.id),
           }));
         } catch (err) {
           console.error("Error loading field neighboring structures:", err);
         }
       };
-      
+
       loadFieldStructures();
     }
   }, [editingId]);
@@ -150,10 +151,10 @@ const FieldList: React.FC<FieldListProps> = ({
 
       // Get the current has_fence value
       const hasFence = editingValues.has_fence ?? field.has_fence ?? null;
-      
+
       // Get neighboring structure IDs
       const neighboringStructureIds = editingValues.neighboringStructureIds || [];
-      
+
       // Convert pv_size to number if it's a string
       let pvSize = null;
       if (editingValues.pv_size) {
@@ -177,7 +178,7 @@ const FieldList: React.FC<FieldListProps> = ({
         longitude: editingValues.longitude || field.longitude,
         pv_size: pvSize,
         has_fence: hasFence,
-        neighboringStructureIds: neighboringStructureIds
+        neighboringStructureIds: neighboringStructureIds,
       });
 
       // Refresh projects to ensure sync - wait for the update to complete
@@ -196,17 +197,17 @@ const FieldList: React.FC<FieldListProps> = ({
   };
 
   const handleToggleNeighboringStructure = (structureId: string) => {
-    setEditingValues(prev => {
+    setEditingValues((prev) => {
       const currentIds = prev.neighboringStructureIds || [];
       if (currentIds.includes(structureId)) {
         return {
           ...prev,
-          neighboringStructureIds: currentIds.filter(id => id !== structureId)
+          neighboringStructureIds: currentIds.filter((id) => id !== structureId),
         };
       } else {
         return {
           ...prev,
-          neighboringStructureIds: [...currentIds, structureId]
+          neighboringStructureIds: [...currentIds, structureId],
         };
       }
     });
@@ -246,14 +247,18 @@ const FieldList: React.FC<FieldListProps> = ({
         longitude = formatCoordinate(longitude);
       }
 
-      const newField = await createField(selectedProjectId, {
-        name: newValues.name.trim(),
-        latitude: latitude || undefined,
-        longitude: longitude || undefined,
-        pv_size: newValues.pv_size ? parseFloat(newValues.pv_size) : null,
-        has_fence: newValues.has_fence as "yes" | "no",
-        neighboringStructureIds: newValues.neighboringStructureIds
-      }, newValues.neighboringStructureIds);
+      const newField = await createField(
+        selectedProjectId,
+        {
+          name: newValues.name.trim(),
+          latitude: latitude || undefined,
+          longitude: longitude || undefined,
+          pv_size: newValues.pv_size ? parseFloat(newValues.pv_size) : null,
+          has_fence: newValues.has_fence as "yes" | "no",
+          neighboringStructureIds: newValues.neighboringStructureIds,
+        },
+        newValues.neighboringStructureIds,
+      );
 
       // Wait a moment to ensure the database has completed the field and zone creation
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -314,9 +319,7 @@ const FieldList: React.FC<FieldListProps> = ({
                     {sortField === "has_fence" && <span className="text-xs ml-1">{sortDirection === "asc" ? "▲" : "▼"}</span>}
                   </div>
                 </TableHead>
-                <TableHead>
-                  {translation("field.has_earthing") || "Earthing"}
-                </TableHead>
+                <TableHead>{translation("field.has_earthing") || "Earthing"}</TableHead>
                 <TableHead className="cursor-pointer hover:bg-muted/50" onClick={() => handleSortChange("location")}>
                   <div className="flex items-center gap-1">
                     {translation("zones.location")}
@@ -367,13 +370,13 @@ const FieldList: React.FC<FieldListProps> = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
-                      <Checkbox 
+                      <Checkbox
                         id="new-has-earthing"
                         checked={newValues.has_earthing}
-                        onCheckedChange={(checked) => 
+                        onCheckedChange={(checked) =>
                           setNewValues({
                             ...newValues,
-                            has_earthing: !!checked
+                            has_earthing: !!checked,
                           })
                         }
                       />
@@ -429,9 +432,9 @@ const FieldList: React.FC<FieldListProps> = ({
                         <div className="text-center p-2 text-muted-foreground">No structures available</div>
                       ) : (
                         <div className="space-y-1">
-                          {neighboringStructures.map(structure => (
+                          {neighboringStructures.map((structure) => (
                             <div key={structure.id} className="flex items-center space-x-2">
-                              <Checkbox 
+                              <Checkbox
                                 id={`new-structure-${structure.id}`}
                                 checked={newValues.neighboringStructureIds?.includes(structure.id)}
                                 onCheckedChange={() => {
@@ -439,20 +442,17 @@ const FieldList: React.FC<FieldListProps> = ({
                                   if (currentIds.includes(structure.id)) {
                                     setNewValues({
                                       ...newValues,
-                                      neighboringStructureIds: currentIds.filter(id => id !== structure.id)
+                                      neighboringStructureIds: currentIds.filter((id) => id !== structure.id),
                                     });
                                   } else {
                                     setNewValues({
                                       ...newValues,
-                                      neighboringStructureIds: [...currentIds, structure.id]
+                                      neighboringStructureIds: [...currentIds, structure.id],
                                     });
                                   }
                                 }}
                               />
-                              <Label 
-                                htmlFor={`new-structure-${structure.id}`}
-                                className="text-xs cursor-pointer"
-                              >
+                              <Label htmlFor={`new-structure-${structure.id}`} className="text-xs cursor-pointer">
                                 {structure.name}
                               </Label>
                             </div>
@@ -549,21 +549,23 @@ const FieldList: React.FC<FieldListProps> = ({
                   <TableCell className="p-2">
                     {editingId === field.id ? (
                       <div className="flex items-center space-x-2">
-                        <Checkbox 
+                        <Checkbox
                           id={`edit-has-earthing-${field.id}`}
                           checked={editingValues.has_earthing === true}
-                          onCheckedChange={(checked) => 
+                          onCheckedChange={(checked) =>
                             setEditingValues((prev) => ({
                               ...prev,
                               has_earthing: !!checked,
-                              earthing_connection_type: !!checked ? (prev.earthing_connection_type || "none") : undefined,
-                              connected_to_field_id: !!checked && prev.earthing_connection_type === "field" ? prev.connected_to_field_id : undefined,
-                              converter_station_id: !!checked && prev.earthing_connection_type === "converter_station" ? prev.converter_station_id : undefined,
+                              earthing_connection_type: !!checked ? prev.earthing_connection_type || "none" : undefined,
+                              connected_to_field_id:
+                                !!checked && prev.earthing_connection_type === "field" ? prev.connected_to_field_id : undefined,
+                              converter_station_id:
+                                !!checked && prev.earthing_connection_type === "converter_station" ? prev.converter_station_id : undefined,
                             }))
                           }
                           onClick={(e) => e.stopPropagation()}
                         />
-                        <Label 
+                        <Label
                           htmlFor={`edit-has-earthing-${field.id}`}
                           className="text-sm cursor-pointer"
                           onClick={(e) => e.stopPropagation()}
@@ -580,27 +582,30 @@ const FieldList: React.FC<FieldListProps> = ({
                             </span>
                             {field.earthing_connection_type && (
                               <span className="text-xs text-muted-foreground">
-                                ({field.earthing_connection_type === "field" ? "Field" : 
-                                  field.earthing_connection_type === "converter_station" ? "Converter" : "None"})
+                                (
+                                {field.earthing_connection_type === "field"
+                                  ? "Field"
+                                  : field.earthing_connection_type === "converter_station"
+                                    ? "Converter"
+                                    : "None"}
+                                )
                               </span>
                             )}
                           </div>
                         ) : (
-                          <span className="text-muted-foreground">
-                            {translation("field.has_earthing.no") || "No"}
-                          </span>
+                          <span className="text-muted-foreground">{translation("field.has_earthing.no") || "No"}</span>
                         )}
                       </div>
                     )}
-                    
+
                     {editingId === field.id && editingValues.has_earthing && (
                       <div className="mt-2 space-y-2">
                         <select
                           value={editingValues.earthing_connection_type || "none"}
-                          onChange={(e) => 
+                          onChange={(e) =>
                             setEditingValues((prev) => ({
                               ...prev,
-                              earthing_connection_type: e.target.value as 'field' | 'converter_station' | 'none',
+                              earthing_connection_type: e.target.value as "field" | "converter_station" | "none",
                               connected_to_field_id: e.target.value === "field" ? prev.connected_to_field_id : undefined,
                               converter_station_id: e.target.value === "converter_station" ? prev.converter_station_id : undefined,
                             }))
@@ -610,16 +615,18 @@ const FieldList: React.FC<FieldListProps> = ({
                         >
                           <option value="none">{translation("field.earthing_connection_none") || "No Connection"}</option>
                           <option value="field">{translation("field.earthing_connection_field") || "To Another Field"}</option>
-                          <option value="converter_station">{translation("field.earthing_connection_converter") || "To Converter Station"}</option>
+                          <option value="converter_station">
+                            {translation("field.earthing_connection_converter") || "To Converter Station"}
+                          </option>
                         </select>
-                        
+
                         {editingValues.earthing_connection_type === "field" && (
                           <select
                             value={editingValues.connected_to_field_id || ""}
-                            onChange={(e) => 
+                            onChange={(e) =>
                               setEditingValues((prev) => ({
                                 ...prev,
-                                connected_to_field_id: e.target.value
+                                connected_to_field_id: e.target.value,
                               }))
                             }
                             className="w-full p-1 text-xs rounded text-primary border border-input shadow-sm bg-accent"
@@ -627,22 +634,23 @@ const FieldList: React.FC<FieldListProps> = ({
                           >
                             <option value="">{translation("field.select_field") || "Select Field"}</option>
                             {sortedFields
-                              .filter(f => f.id !== field.id) // Don't allow connecting to self
-                              .map(f => (
-                                <option key={f.id} value={f.id}>{f.name}</option>
-                              ))
-                            }
+                              .filter((f) => f.id !== field.id) // Don't allow connecting to self
+                              .map((f) => (
+                                <option key={f.id} value={f.id}>
+                                  {f.name}
+                                </option>
+                              ))}
                           </select>
                         )}
-                        
+
                         {editingValues.earthing_connection_type === "converter_station" && (
                           <Input
                             type="text"
                             value={editingValues.converter_station_id || ""}
-                            onChange={(e) => 
+                            onChange={(e) =>
                               setEditingValues((prev) => ({
                                 ...prev,
-                                converter_station_id: e.target.value
+                                converter_station_id: e.target.value,
                               }))
                             }
                             className="w-full p-1 text-xs"
@@ -713,11 +721,13 @@ const FieldList: React.FC<FieldListProps> = ({
                       />
                     ) : (
                       <div onClick={() => editingId !== field.id && onSelectField(field.id)}>
-                        {field.pv_size !== undefined && field.pv_size !== null ? (
-                          `${typeof field.pv_size === 'string' ? 
-                            Number(parseFloat(field.pv_size)).toFixed(2) : 
-                            Number(field.pv_size).toFixed(2)} MW`
-                        ) : "-"}
+                        {field.pv_size !== undefined && field.pv_size !== null
+                          ? `${
+                              typeof field.pv_size === "string"
+                                ? Number(parseFloat(field.pv_size)).toFixed(2)
+                                : Number(field.pv_size).toFixed(2)
+                            } MW`
+                          : "-"}
                       </div>
                     )}
                   </TableCell>
@@ -730,17 +740,14 @@ const FieldList: React.FC<FieldListProps> = ({
                           <div className="text-center p-2 text-muted-foreground">No structures available</div>
                         ) : (
                           <div className="space-y-1">
-                            {neighboringStructures.map(structure => (
+                            {neighboringStructures.map((structure) => (
                               <div key={structure.id} className="flex items-center space-x-2">
-                                <Checkbox 
+                                <Checkbox
                                   id={`structure-${field.id}-${structure.id}`}
                                   checked={editingValues.neighboringStructureIds?.includes(structure.id)}
                                   onCheckedChange={() => handleToggleNeighboringStructure(structure.id)}
                                 />
-                                <Label 
-                                  htmlFor={`structure-${field.id}-${structure.id}`}
-                                  className="text-xs cursor-pointer"
-                                >
+                                <Label htmlFor={`structure-${field.id}-${structure.id}`} className="text-xs cursor-pointer">
                                   {structure.name}
                                 </Label>
                               </div>
@@ -751,9 +758,7 @@ const FieldList: React.FC<FieldListProps> = ({
                     ) : (
                       <div onClick={() => editingId !== field.id && onSelectField(field.id)}>
                         {fieldNeighboringStructures[field.id]?.length > 0 ? (
-                          <div className="text-sm">
-                            {fieldNeighboringStructures[field.id]?.length} structures
-                          </div>
+                          <div className="text-sm">{fieldNeighboringStructures[field.id]?.length} structures</div>
                         ) : (
                           <span className="text-muted-foreground">None</span>
                         )}

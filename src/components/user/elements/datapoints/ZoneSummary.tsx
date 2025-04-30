@@ -71,28 +71,28 @@ const ZoneSummary: React.FC<ZoneSummaryProps> = ({ zone, currentTheme, currentLa
                   onClick={() => setIsExpanded(!isExpanded)}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="project-overview-title">{translation("zone.overview")}</span>
-                      <span className="text-lg">
-                        {isEditing ? (
-                          <Input
-                            type="text"
-                            value={editValues.name}
-                            onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
-                            className="p-1 rounded text-sm text-primary "
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        ) : (
-                          zone.name
-                        )}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1">
-                        <span className="inline-flex items-center justify-center h-5 min-w-5 px-1 rounded-sm bg-primary/10 text-xs font-medium">
-                          {zone.datapoints?.length || 0}
+                    <div className="w-full flex items-center  gap-2">
+                      <div className="w-[20vw] flex items-center gap-2">
+                        <span className="project-overview-title">{translation("zone.overview")}</span>
+                        <span className="text-lg">
+                          {isEditing ? (
+                            <Input
+                              type="text"
+                              value={editValues.name}
+                              onChange={(e) => setEditValues({ ...editValues, name: e.target.value })}
+                              className="p-1 rounded text-sm text-primary "
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          ) : (
+                            zone.name
+                          )}
                         </span>
-                      </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs px-2 py-0.5 rounded bg-opacity-20 bg-border">
+                          {zone.datapoints?.length || 0} {translation("datapoints")}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {isEditing ? (

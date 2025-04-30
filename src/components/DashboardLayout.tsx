@@ -204,8 +204,8 @@ const DashboardLayout = () => {
         setReports(fetchedReports || []);
 
         // Load uncategorized projects
-        const uncategorizedProjects = await fetchProjects();
-        setProjects(uncategorizedProjects);
+        // const uncategorizedProjects = await fetchProjects();
+        //setProjects(uncategorizedProjects);
       } catch (error) {
         console.error("Error loading initial data:", error);
         setError("Failed to load data. Please try again.");
@@ -643,19 +643,11 @@ const DashboardLayout = () => {
                   <FileText size={18} />
                   <span>{t("nav.analyse")}</span>
                 </ButtonSection>
-                <ButtonSection
-                  view={view}
-                  match="output"
-                  onClick={() => setView("output")}
-                >
+                <ButtonSection view={view} match="output" onClick={() => setView("output")}>
                   <FileText size={18} />
                   <span>{t("nav.output")}</span>
                 </ButtonSection>
-                <ButtonSection
-                  view={view}
-                  match="reports"
-                  onClick={() => setView("reports")}
-                >
+                <ButtonSection view={view} match="reports" onClick={() => setView("reports")}>
                   <ClipboardList size={18} />
                   <span>{t("reports.title")}</span>
                 </ButtonSection>
@@ -670,12 +662,17 @@ const DashboardLayout = () => {
               </ButtonSection>
             )}
             {isAdmin && (
-              <ButtonSection view={settingsView} match="admin" onClick={() => toggleViewMode(true)}>
+              <ButtonSection
+                view={settingsView}
+                match="admin"
+                onClick={() => toggleViewMode(true)}
+                className="bg-primary text-primary-foreground"
+              >
                 <ArrowLeftRight size={18} />
                 <span>Switch to Admin View</span>
               </ButtonSection>
             )}
-            <ButtonSection view={settingsView} match="signout" onClick={handleSignOut}>
+            <ButtonSection view={settingsView} match="signout" onClick={handleSignOut} className="bg-primary text-primary-foreground">
               <LogOut size={18} />
               <span>{t("nav.signout")}</span>
             </ButtonSection>

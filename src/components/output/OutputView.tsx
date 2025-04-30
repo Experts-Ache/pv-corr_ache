@@ -11,21 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { useLocation, useNavigate } from "react-router-dom";
 import { createReport } from "../../services/reports";
 import { fetchDatapointsByZoneId } from "../../services/datapoints";
-import { 
-  fetchProject, 
-  fetchZone, 
-  fetchParameterDetails, 
-  fetchReportById, 
-  createPreviewReport 
-} from "../../services/reportService";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
+import { fetchProject, fetchZone, fetchParameterDetails, fetchReportById, createPreviewReport } from "../../services/reportService";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import ReportHeader from "./ReportHeader";
 import ReportMethodology from "./ReportMethodology";
 import ReportParameters from "./ReportParameters";
@@ -42,15 +29,7 @@ interface OutputViewProps {
   onBack: () => void;
 }
 
-const OutputView: React.FC<OutputViewProps> = ({ 
-  currentTheme, 
-  currentLanguage, 
-  project, 
-  zone, 
-  normId, 
-  reportId, 
-  onBack 
-}) => {
+const OutputView: React.FC<OutputViewProps> = ({ currentTheme, currentLanguage, project, zone, normId, reportId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [reportData, setReportData] = useState<any>(null);
@@ -79,7 +58,7 @@ const OutputView: React.FC<OutputViewProps> = ({
       if (dataLoadedRef.current) {
         return;
       }
-      
+
       try {
         setLoading(true);
         // Get parameters from URL
@@ -111,12 +90,12 @@ const OutputView: React.FC<OutputViewProps> = ({
         } else if ((project && zone && normIdToUse) || (preview === "true" && projectId && zoneId && normIdToUse)) {
           // Preview mode - construct data from current selection or URL parameters
           const previewData = await createPreviewReport(
-            projectId || project?.id || "", 
-            zoneId || zone?.id || "", 
-            normIdToUse || "", 
-            datapointIds
+            projectId || project?.id || "",
+            zoneId || zone?.id || "",
+            normIdToUse || "",
+            datapointIds,
           );
-          
+
           setReportData(previewData.reportData);
           setNorm(previewData.norm);
           setSelectedDatapoints(previewData.datapoints);
@@ -180,7 +159,7 @@ const OutputView: React.FC<OutputViewProps> = ({
       } finally {
         setLoading(false);
       }
-      
+
       // Mark that we've loaded data
       dataLoadedRef.current = true;
     };
@@ -199,7 +178,9 @@ const OutputView: React.FC<OutputViewProps> = ({
       const toastId = showToast("Saving report...", "loading");
 
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
       // Get datapoints for this zone
@@ -214,13 +195,7 @@ const OutputView: React.FC<OutputViewProps> = ({
       }, 0);
 
       // Determine classification based on total rating
-      const classification = totalRating >= 0 
-        ? "Ia" 
-        : totalRating >= -4 
-          ? "Ib" 
-          : totalRating >= -10 
-            ? "II" 
-            : "III";
+      const classification = totalRating >= 0 ? "Ia" : totalRating >= -4 ? "Ib" : totalRating >= -10 ? "II" : "III";
 
       // Create report data
       const reportData = {
@@ -333,15 +308,10 @@ const OutputView: React.FC<OutputViewProps> = ({
   return (
     <div className="p-6 max-w-[210mm] mx-auto bg-background print:bg-white print:p-0">
       {/* Report Controls */}
-      <ReportControls 
-        onBack={onBack}
-        onSave={handleSaveAsReport}
-        isSaving={isSaving}
-        isReportSaved={!!reportId}
-      />
+      <ReportControls onBack={onBack} onSave={handleSaveAsReport} isSaving={isSaving} isReportSaved={!!reportId} />
 
       {/* Report Header */}
-      <ReportHeader 
+      <ReportHeader
         project={project}
         zone={zone}
         norm={norm}
@@ -353,14 +323,10 @@ const OutputView: React.FC<OutputViewProps> = ({
       <ReportMethodology norm={norm} />
 
       {/* Parameters and Results */}
-      <ReportParameters 
-        datapointsToUse={datapointsToUse}
-        parameterDetails={parameterDetails}
-        className="print:page-break-after-avoid"
-      />
+      <ReportParameters datapointsToUse={datapointsToUse} parameterDetails={parameterDetails} className="print:page-break-after-avoid" />
 
       {/* Analysis Results */}
-      <ReportResults 
+      <ReportResults
         totalRating={totalRating}
         classification={classification}
         normResults={reportData?.currentVersion?.content?.normResults}

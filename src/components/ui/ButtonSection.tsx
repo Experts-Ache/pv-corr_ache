@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface ButtonSectionProps {
   view: string;
   match: string;
@@ -12,7 +14,7 @@ export const ButtonSection = ({ children, view, match, onClick, className }: But
   return (
     <button
       onClick={onClick}
-      className={`w-max flex items-center gap-2 px-3 py-2 rounded transition-colors ${classNameActive} ${className}`}
+      className={cn(`w-max flex items-center gap-2 px-3 py-2 rounded transition-colors `, classNameActive, className)}
     >
       {children}
     </button>

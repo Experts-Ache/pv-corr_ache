@@ -38,34 +38,26 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
   });
   const translation = useTranslation(currentLanguage);
   const [availableFields, setAvailableFields] = useState<any[]>([]);
-  
+
   // Load available fields for earthing connection
   React.useEffect(() => {
     const loadAvailableFields = async () => {
       try {
         // Get the project ID from the field
-        const { data: fieldData, error: fieldError } = await supabase
-          .from("fields")
-          .select("project_id")
-          .eq("id", field.id)
-          .single();
-          
+        const { data: fieldData, error: fieldError } = await supabase.from("fields").select("project_id").eq("id", field.id).single();
+
         if (fieldError) throw fieldError;
-        
+
         // Fetch all fields from the same project except the current one
-        const { data, error } = await supabase
-          .from("fields")
-          .select("id, name")
-          .eq("project_id", fieldData.project_id)
-          .neq("id", field.id);
-          
+        const { data, error } = await supabase.from("fields").select("id, name").eq("project_id", fieldData.project_id).neq("id", field.id);
+
         if (error) throw error;
         setAvailableFields(data || []);
       } catch (err) {
         console.error("Error loading available fields:", err);
       }
     };
-    
+
     loadAvailableFields();
   }, [field.id]);
 
@@ -191,19 +183,19 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
               </select>
             </div>
           )}
-              
+
           {!isEditingCoordinates && (
             <div className="block text-sm mb-1 text-secondary">
               <div className="flex items-center space-x-2 mb-2">
-                <Checkbox 
+                <Checkbox
                   id="edit-has-earthing"
                   name="has_earthing"
                   checked={fields.has_earthing}
-                  onCheckedChange={(checked) => 
+                  onCheckedChange={(checked) =>
                     setFields({
                       ...fields,
                       has_earthing: !!checked,
-                      earthing_connection_type: !!checked ? fields.earthing_connection_type || "none" : "none"
+                      earthing_connection_type: !!checked ? fields.earthing_connection_type || "none" : "none",
                     })
                   }
                 />
@@ -211,13 +203,11 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
                   {translation("field.has_earthing") || "Has Earthing Connection"}
                 </Label>
               </div>
-              
+
               {fields.has_earthing && (
                 <div className="ml-6 space-y-4">
                   <div>
-                    <Label className="block text-sm mb-1">
-                      {translation("field.earthing_connection_type") || "Connection Type"}
-                    </Label>
+                    <Label className="block text-sm mb-1">{translation("field.earthing_connection_type") || "Connection Type"}</Label>
                     <select
                       name="earthing_connection_type"
                       value={fields.earthing_connection_type}
@@ -225,14 +215,14 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
                         handleChange(e);
                         // Reset related fields when connection type changes
                         if (e.target.value === "field") {
-                          setFields(prev => ({ ...prev, converter_station_id: "" }));
+                          setFields((prev) => ({ ...prev, converter_station_id: "" }));
                         } else if (e.target.value === "converter_station") {
-                          setFields(prev => ({ ...prev, connected_to_field_id: "" }));
+                          setFields((prev) => ({ ...prev, connected_to_field_id: "" }));
                         } else {
-                          setFields(prev => ({ 
-                            ...prev, 
+                          setFields((prev) => ({
+                            ...prev,
                             connected_to_field_id: "",
-                            converter_station_id: ""
+                            converter_station_id: "",
                           }));
                         }
                       }}
@@ -240,15 +230,15 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
                     >
                       <option value="none">{translation("field.earthing_connection_none") || "No Connection"}</option>
                       <option value="field">{translation("field.earthing_connection_field") || "To Another Field"}</option>
-                      <option value="converter_station">{translation("field.earthing_connection_converter") || "To Converter Station"}</option>
+                      <option value="converter_station">
+                        {translation("field.earthing_connection_converter") || "To Converter Station"}
+                      </option>
                     </select>
                   </div>
-                  
+
                   {fields.earthing_connection_type === "field" && (
                     <div>
-                      <Label className="block text-sm mb-1">
-                        {translation("field.connected_to_field") || "Connected to Field"}
-                      </Label>
+                      <Label className="block text-sm mb-1">{translation("field.connected_to_field") || "Connected to Field"}</Label>
                       <select
                         name="connected_to_field_id"
                         value={fields.connected_to_field_id}
@@ -256,18 +246,18 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
                         className="w-full p-2 rounded text-sm text-primary border-theme border-solid bg-surface"
                       >
                         <option value="">{translation("field.select_field") || "Select Field"}</option>
-                        {availableFields.map(field => (
-                          <option key={field.id} value={field.id}>{field.name}</option>
+                        {availableFields.map((field) => (
+                          <option key={field.id} value={field.id}>
+                            {field.name}
+                          </option>
                         ))}
                       </select>
                     </div>
                   )}
-                  
+
                   {fields.earthing_connection_type === "converter_station" && (
                     <div>
-                      <Label className="block text-sm mb-1">
-                        {translation("field.converter_station") || "Converter Station"}
-                      </Label>
+                      <Label className="block text-sm mb-1">{translation("field.converter_station") || "Converter Station"}</Label>
                       <input
                         type="text"
                         name="converter_station_id"
@@ -277,7 +267,8 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
                         placeholder={translation("field.enter_converter_id") || "Enter converter station ID"}
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        {translation("field.converter_station_note") || "Note: Converter station functionality will be available in a future update."}
+                        {translation("field.converter_station_note") ||
+                          "Note: Converter station functionality will be available in a future update."}
                       </p>
                     </div>
                   )}
@@ -285,7 +276,7 @@ export const EditField = ({ field, isEditingCoordinates, setShowForm, onProjects
               )}
             </div>
           )}
-              
+
           <div className="w-full mt-6 flex items-center justify-end gap-x-2">
             <Button
               className="px-4 py-2 rounded text-sm text-secondary border-theme border-solid bg-transparent"

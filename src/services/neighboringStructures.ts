@@ -6,10 +6,7 @@ import { showToast } from "../lib/toast";
  */
 export const fetchNeighboringStructures = async () => {
   try {
-    const { data, error } = await supabase
-      .from("neighboring_structures")
-      .select("*")
-      .order("name", { ascending: true });
+    const { data, error } = await supabase.from("neighboring_structures").select("*").order("name", { ascending: true });
 
     if (error) throw error;
     return data || [];
@@ -27,7 +24,8 @@ export const fetchFieldNeighboringStructures = async (fieldId: string) => {
   try {
     const { data, error } = await supabase
       .from("field_neighboring_structures")
-      .select(`
+      .select(
+        `
         neighboring_structure_id,
         neighboring_structures:neighboring_structure_id (
           id,
@@ -39,13 +37,14 @@ export const fetchFieldNeighboringStructures = async (fieldId: string) => {
           height,
           construction_year
         )
-      `)
+      `,
+      )
       .eq("field_id", fieldId);
 
     if (error) throw error;
-    
+
     // Extract the neighboring structures from the nested structure
-    return (data || []).map(item => item.neighboring_structures);
+    return (data || []).map((item) => item.neighboring_structures);
   } catch (err) {
     console.error("Error fetching field neighboring structures:", err);
     showToast(`Failed to fetch field neighboring structures: ${err instanceof Error ? err.message : "Unknown error"}`, "error");
@@ -59,23 +58,18 @@ export const fetchFieldNeighboringStructures = async (fieldId: string) => {
 export const updateFieldNeighboringStructures = async (fieldId: string, neighboringStructureIds: string[]) => {
   try {
     // First delete existing associations
-    const { error: deleteError } = await supabase
-      .from("field_neighboring_structures")
-      .delete()
-      .eq("field_id", fieldId);
+    const { error: deleteError } = await supabase.from("field_neighboring_structures").delete().eq("field_id", fieldId);
 
     if (deleteError) throw deleteError;
 
     // Then insert new ones if there are any
     if (neighboringStructureIds.length > 0) {
-      const neighboringStructureInserts = neighboringStructureIds.map(structureId => ({
+      const neighboringStructureInserts = neighboringStructureIds.map((structureId) => ({
         field_id: fieldId,
-        neighboring_structure_id: structureId
+        neighboring_structure_id: structureId,
       }));
 
-      const { error: insertError } = await supabase
-        .from("field_neighboring_structures")
-        .insert(neighboringStructureInserts);
+      const { error: insertError } = await supabase.from("field_neighboring_structures").insert(neighboringStructureInserts);
 
       if (insertError) throw insertError;
     }

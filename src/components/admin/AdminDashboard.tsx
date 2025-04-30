@@ -1,6 +1,6 @@
 import React from "react";
 import { Theme } from "../../types/theme";
-import { Database, Settings, LogOut, LayoutDashboard, Tag, Users } from "lucide-react";
+import { Database, Settings, LogOut, LayoutDashboard, Tag, Users, ArrowLeftRight } from "lucide-react";
 import DatabaseManagement from "./DatabaseManagement";
 import UserManagement from "./UserManagement";
 import AdminSettings from "./AdminSettings";
@@ -69,9 +69,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
         </div>
         <div className="flex items-center gap-4">
           {onSwitchToUserView && (
-            <Button onClick={onSwitchToUserView} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
-              <LayoutDashboard size={16} />
-              Switch to User View
+            <Button onClick={onSwitchToUserView}>
+              <ArrowLeftRight size={18} />
+              <span>Switch to User View</span>
             </Button>
           )}
           <Button onClick={handleSignOut} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
