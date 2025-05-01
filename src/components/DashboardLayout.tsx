@@ -662,17 +662,12 @@ const DashboardLayout = () => {
               </ButtonSection>
             )}
             {isAdmin && (
-              <ButtonSection
-                view={settingsView}
-                match="admin"
-                onClick={() => toggleViewMode(true)}
-                className="bg-primary text-primary-foreground"
-              >
+              <ButtonSection view={settingsView} match="admin" onClick={() => toggleViewMode(true)}>
                 <ArrowLeftRight size={18} />
                 <span>Switch to Admin View</span>
               </ButtonSection>
             )}
-            <ButtonSection view={settingsView} match="signout" onClick={handleSignOut} className="bg-primary text-primary-foreground">
+            <ButtonSection view={settingsView} match="signout" onClick={handleSignOut}>
               <LogOut size={18} />
               <span>{t("nav.signout")}</span>
             </ButtonSection>

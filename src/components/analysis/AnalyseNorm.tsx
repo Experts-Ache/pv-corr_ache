@@ -122,10 +122,10 @@ const AnalyseNorm: React.FC<AnalyseNormProps> = ({ currentTheme, currentLanguage
             disabled={loadingNorm}
             variant="outline"
             className={cn("border-primary hover:bg-primary", {
-              "bg-primary hover:bg-primary": selectedNormId === norm.id,
+              "bg-primary hover:bg-primary text-accent": selectedNormId === norm.id,
             })}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between ">
               <div>
                 <div className="text-sm ">{norm.name}</div>
               </div>

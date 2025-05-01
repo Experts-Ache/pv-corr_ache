@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PV Size Sum in Projects
 - Earthing Connections in Fields
 - Neighboring Structures in Fields
-- ISO 9223 (Alpha) 
+- ISO 9223 (Alpha)
 
 #### Changed
 

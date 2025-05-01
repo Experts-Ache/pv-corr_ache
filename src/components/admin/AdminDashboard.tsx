@@ -69,15 +69,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentTheme, currentLa
         </div>
         <div className="flex items-center gap-4">
           {onSwitchToUserView && (
-            <Button onClick={onSwitchToUserView}>
+            <ButtonSection view={activeView} match="user" onClick={onSwitchToUserView}>
               <ArrowLeftRight size={18} />
               <span>Switch to User View</span>
-            </Button>
+            </ButtonSection>
           )}
-          <Button onClick={handleSignOut} className="w-max flex items-center gap-2 px-3 py-2 rounded transition-colors">
+          <ButtonSection view={activeView} match="signout" onClick={handleSignOut}>
             <LogOut size={16} />
-            Sign Out
-          </Button>
+            <span> Sign Out</span>
+          </ButtonSection>
         </div>
       </div>
 

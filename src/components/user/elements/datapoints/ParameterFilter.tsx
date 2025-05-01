@@ -78,7 +78,7 @@ const ParameterFilter: React.FC<ParameterFilterProps> = ({ currentTheme, current
             onClick={() => handleNormChange(norm.id)}
             variant="outline"
             className={cn("border-primary hover:bg-primary", {
-              "bg-primary hover:bg-primary": selectedNorm === norm.id,
+              "bg-primary hover:bg-primary text-accent": selectedNorm === norm.id,
             })}
           >
             {norm.name}

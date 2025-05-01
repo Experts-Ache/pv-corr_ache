@@ -16,7 +16,7 @@ export const formatOutput = (output: any): string => {
       type: typeof output,
       value: output.value,
       success: output.success,
-      fullObject: output
+      fullObject: output,
     });
   }
 

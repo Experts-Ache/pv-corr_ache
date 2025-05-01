@@ -109,6 +109,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
   const [deleteConfirmName, setDeleteConfirmName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [units, setUnits] = useState<{ unitId: string; name: string; symbol: string }[]>([]);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const translation = useTranslation(currentLanguage);
 
   useEffect(() => {
@@ -132,7 +133,8 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
     try {
       setLoading(true);
       const fetchedParameters = await fetchParameters();
-      setParameters(fetchedParameters);
+      const sortedParameters = fetchedParameters.sort((a, b) => (a.short_id || "").localeCompare(b.short_id || ""));
+      setParameters(sortedParameters);
     } catch (error) {
       console.error(error);
     } finally {
@@ -256,6 +258,15 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
     setIsNewParameter(false);
   };
 
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  const sortedParameters = [...parameters].sort((a, b) => {
+    const order = sortDirection === "asc" ? 1 : -1;
+    return (a.short_id || "").localeCompare(b.short_id || "") * order;
+  });
+
   return (
     <div className="p-6">
       {loading ? (
@@ -275,7 +286,9 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                 <TableCaption className="h-8">Parameters</TableCaption>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>#</TableHead>
+                    <TableHead onClick={toggleSortDirection} className="cursor-pointer">
+                      #{sortDirection === "asc" ? " ▲" : " ▼"}
+                    </TableHead>
                     <TableHead>Uuid</TableHead>
                     <TableHead>Parameter Name</TableHead>
                     <TableHead>Short Name</TableHead>
@@ -287,7 +300,7 @@ export const ParameterPanel: React.FC<ParameterPanelProps> = ({ currentTheme, cu
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {parameters.map((parameter) => (
+                  {sortedParameters.map((parameter) => (
                     <TableRow key={parameter.id}>
                       <TableCell className="p-2 align-middle">{parameter.short_id}</TableCell>
                       <TableCell className="p-2 align-middle">

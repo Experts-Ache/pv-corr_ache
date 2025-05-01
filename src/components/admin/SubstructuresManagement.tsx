@@ -169,7 +169,7 @@ const SubstructuresManagement: React.FC<SubstructuresManagementProps> = ({ curre
         version_id: versionId,
         type: editingValues.type || "field",
         hidden_id: generateHiddenId(),
-        link: editingValues.link,
+        link: editingValues.link || "",
         base_material_id: editingValues.base_material_id,
         first_layer_id: editingValues.first_layer_id,
         second_layer_id: editingValues.second_layer_id,
@@ -368,15 +368,15 @@ const SubstructuresManagement: React.FC<SubstructuresManagementProps> = ({ curre
                       {editingSubstructure === substructure.id ? (
                         <Input
                           type="url"
-                          value={editingValues.link || substructure.link || ""}
+                          value={editingValues.link ?? ""}
                           onChange={(e) => setEditingValues({ ...editingValues, link: e.target.value })}
                           className="w-full p-1"
                           placeholder="https://"
                         />
                       ) : (
-                        substructure.link && (
+                        (editingValues.link !== undefined ? editingValues.link : substructure.link) && (
                           <a
-                            href={substructure.link}
+                            href={editingValues.link || substructure.link}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-accent-primary hover:underline"

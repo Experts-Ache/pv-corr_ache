@@ -73,7 +73,7 @@ const ZoneSummary: React.FC<ZoneSummaryProps> = ({ zone, currentTheme, currentLa
                   <div className="flex items-center justify-between">
                     <div className="w-full flex items-center  gap-2">
                       <div className="w-[20vw] flex items-center gap-2">
-                        <span className="project-overview-title">{translation("zone.overview")}</span>
+                        <span className="text-primary-foreground whitespace-nowrap">{translation("zone.overview")}</span>
                         <span className="text-lg">
                           {isEditing ? (
                             <Input

@@ -151,7 +151,7 @@ const ProjectSummary: React.FC<ProjectSummaryProps> = ({
                   <div className="w-full flex items-center justify-between">
                     <div className="w-full flex items-center  gap-2">
                       <div className="w-[20vw] flex items-center gap-2">
-                        <span className="text-primary whitespace-nowrap">{translation("project.overview")}</span>
+                        <span className="text-primary-foreground whitespace-nowrap">{translation("project.overview")}</span>
                         <span className="text-lg truncate">{project.name}</span>
                       </div>
                       <div className="flex items-center gap-3">

@@ -95,7 +95,7 @@ const AnalyseData: React.FC<AnalyseDataProps> = ({ currentTheme, currentLanguage
             onClick={() => handleSort("timestamp")}
             variant={sortField === "timestamp" ? "default" : "outline"}
             className={cn("border-primary hover:bg-primary", {
-              "bg-primary hover:bg-primary": sortField === "timestamp",
+              "bg-primary hover:bg-primary text-accent": sortField === "timestamp",
             })}
           >
             {t("date")}
@@ -113,7 +113,7 @@ const AnalyseData: React.FC<AnalyseDataProps> = ({ currentTheme, currentLanguage
               onClick={() => onToggleDatapoint(datapoint.id)}
               variant="outline"
               className={cn("border-primary hover:bg-primary", {
-                "bg-primary hover:bg-primary": selectedDatapoints.includes(datapoint.id),
+                "bg-primary hover:bg-primary text-accent": selectedDatapoints.includes(datapoint.id),
               })}
             >
               <div className="flex items-center justify-between">
